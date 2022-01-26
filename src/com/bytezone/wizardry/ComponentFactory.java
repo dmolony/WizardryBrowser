@@ -7,8 +7,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bytezone.disk.DOSDiskImage;
-import com.bytezone.disk.DiskImage;
+import com.bytezone.diskbrowser.disk.Disk;
+import com.bytezone.diskbrowser.disk.DiskFactory;
 import com.bytezone.diskbrowser.utilities.HexFormatter;
 import com.bytezone.diskbrowser.utilities.Utility;
 import com.bytezone.wizardry.Spell.SpellType;
@@ -29,7 +29,7 @@ public class ComponentFactory
   private long[][] experienceLevels;
   private int codeOffset;
   private int scenario;
-  private DiskImage disk;
+  private Disk disk;
 
   private static final int DATA_BLOCK = 2;
   private static final int MSG_BLOCK = 3;
@@ -48,12 +48,12 @@ public class ComponentFactory
 
   public ComponentFactory (File file) throws NotAWizardryDisk, NotAnAppleDisk
   {
-    disk = DiskImage.createDiskImage (file);
+    disk = DiskFactory.createDisk (file).getDisk ();
 
     if (disk == null)
       throw new NotAnAppleDisk ();
 
-    byte[] buffer = disk.getSector (0, 11);
+    byte[] buffer = disk.readBlock (0, 11);
     String text = HexFormatter.getString (buffer, 59, 13);
     if (!text.equals ("SCENARIO.DATA"))
       throw new NotAWizardryDisk (file.getAbsolutePath ());
@@ -135,14 +135,14 @@ public class ComponentFactory
 
     if (false)
     {
-      buffer = disk.getSector (21, 1);
+      buffer = disk.readBlock (21, 1);
       buffer[150] = 0;
       buffer[152] = 96;
       buffer[154] = 0;
       buffer[156] = 0;
       // System.out.println (HexFormatter.format (buffer, 0, 256));
-      ((DOSDiskImage) disk).putSector (21, 1, buffer);
-      ((DOSDiskImage) disk).save ();
+      //      ((DOSDiskImage) disk).putSector (21, 1, buffer);
+      //      ((DOSDiskImage) disk).save ();
     }
   }
 
@@ -572,10 +572,16 @@ public class ComponentFactory
       int index = block % 8;
 
       int sector = (index == 0) ? 0 : 15 - index * 2;
-      disk.getSector (track, sector, buffer, offset);
+      //      disk.getSector (track, sector, buffer, offset);
+      byte[] buffer1 = disk.readBlock (track, sector);
+      //      disk.getSector (track, sector, buffer, offset);
+      System.arraycopy (buffer1, 0, buffer, offset, 256);
 
       sector = (sector <= 1) ? sector + 14 : sector - 1;
-      disk.getSector (track, sector, buffer, offset + 256);
+      //      disk.getSector (track, sector, buffer, offset + 256);
+      byte[] buffer2 = disk.readBlock (track, sector);
+      //      disk.getSector (track, sector, buffer, offset + 256);
+      System.arraycopy (buffer2, 0, buffer, offset + 256, 256);
 
       block++;
     }

@@ -53,13 +53,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
-import com.bytezone.disk.*;
 import com.bytezone.diskbrowser.utilities.HexFormatter;
-import com.bytezone.diskbrowser.utilities.NumberRenderer;
-import com.bytezone.utilities.SortFilterModel;
 import com.bytezone.wizardry.Spell.SpellType;
-
-import de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel;
 
 public class ScenarioBrowser extends JFrame
 {
@@ -657,13 +652,13 @@ public class ScenarioBrowser extends JFrame
     itemTable.setShowVerticalLines (false);
     TableColumnModel model = itemTable.getColumnModel ();
 
-    model.getColumn (0).setMinWidth (120); // name
-    model.getColumn (1).setMinWidth (70); // name
-    model.getColumn (8).setMaxWidth (60); // damage
-    model.getColumn (9).setMaxWidth (80); // used by
-    model.getColumn (7).setMaxWidth (40); // speed
-    model.getColumn (1).setMaxWidth (150); // type
-    model.getColumn (2).setMaxWidth (30); // cursed
+    model.getColumn (0).setMinWidth (120);      // name
+    model.getColumn (1).setMinWidth (70);       // name
+    model.getColumn (8).setMaxWidth (60);       // damage
+    model.getColumn (9).setMaxWidth (80);       // used by
+    model.getColumn (7).setMaxWidth (40);       // speed
+    model.getColumn (1).setMaxWidth (150);      // type
+    model.getColumn (2).setMaxWidth (30);       // cursed
 
     th.addMouseListener (new MouseAdapter ()
     {
@@ -776,8 +771,8 @@ public class ScenarioBrowser extends JFrame
   {
     try
     {
-      UIManager.setLookAndFeel (new SyntheticaStandardLookAndFeel ());
-      //      UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
+      //      UIManager.setLookAndFeel (new SyntheticaStandardLookAndFeel ());
+      UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
     }
     catch (Exception e)
     {
