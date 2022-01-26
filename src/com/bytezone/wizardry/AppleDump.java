@@ -6,8 +6,9 @@ import java.io.RandomAccessFile;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import com.bytezone.disk.HexFormatter;
-import com.bytezone.disk.HiResImage;
+import com.bytezone.diskbrowser.applefile.HiResImage;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
+import com.bytezone.diskbrowser.utilities.Utility;
 
 public class AppleDump
 {
@@ -23,20 +24,19 @@ public class AppleDump
   private static String[] facing = { "North", "East", "South", "West" };
   private static NumberFormat nf = NumberFormat.getInstance ();
 
-  private static int[] experience = { 55, 235, 415, 230, 380, 620, 840, 520,
-          550, 350, // 00-09
-          475, 515, 920, 600, 735, 520, 795, 780, 990, 795, // 10-19
-          1360, 1320, 1275, 680, 960, 600, 755, 1120, 2070, 870, // 20-29
-          960, 1120, 1120, 2435, 1080, 2280, 975, 875, 1135, 1200, // 30-39
-          620, 740, 1460, 1245, 960, 1405, 1040, 1220, 1520, 995, // 40-49
-          665, 2340, 2160, 2395, 790, 1140, 1235, 1790, 1720, 2240, // 50-59
-          1475, 1540, 1720, 1900, 1240, 1220, 1020, 20435, 5100, 3515, // 60-69
-          2115, 2920, 2060, 2140, 1400, 1640, 1280, 4450, 42840, 3300, // 70-79
-          40875, 5000, 3300, 2395, 1935, 1600, 3330, 44090, 40840, 5200, // 80-89
-          4150, 3000, 9200, 3160, 7460, 0, 0, 0, 0, 1000, 0 // 90-100
+  private static int[] experience = { 55, 235, 415, 230, 380, 620, 840, 520, 550, 350, // 00-09
+      475, 515, 920, 600, 735, 520, 795, 780, 990, 795, // 10-19
+      1360, 1320, 1275, 680, 960, 600, 755, 1120, 2070, 870, // 20-29
+      960, 1120, 1120, 2435, 1080, 2280, 975, 875, 1135, 1200, // 30-39
+      620, 740, 1460, 1245, 960, 1405, 1040, 1220, 1520, 995, // 40-49
+      665, 2340, 2160, 2395, 790, 1140, 1235, 1790, 1720, 2240, // 50-59
+      1475, 1540, 1720, 1900, 1240, 1220, 1020, 20435, 5100, 3515, // 60-69
+      2115, 2920, 2060, 2140, 1400, 1640, 1280, 4450, 42840, 3300, // 70-79
+      40875, 5000, 3300, 2395, 1935, 1600, 3330, 44090, 40840, 5200, // 80-89
+      4150, 3000, 9200, 3160, 7460, 0, 0, 0, 0, 1000, 0 // 90-100
   };
 
-  public AppleDump(File f)
+  public AppleDump (File f)
   {
     if (!f.exists ())
     {
@@ -47,12 +47,12 @@ public class AppleDump
     saveFile = f;
     readFile ();
   }
-  
+
   public byte[] getBuffer ()
   {
     return buffer;
   }
-  
+
   public void setBuffer (byte[] buffer)
   {
     this.buffer = buffer;
@@ -62,7 +62,7 @@ public class AppleDump
   {
     this.items = items;
   }
-  
+
   public void setCharacters (ArrayList<Character> characters)
   {
     this.characters = characters;
@@ -93,29 +93,28 @@ public class AppleDump
       if (length <= 0)
         break;
 
-      int level = HexFormatter.intValue (buffer[ptr + 132]);
+      int level = buffer[ptr + 132] & 0xFF;
       StringBuilder line = new StringBuilder ("  " + level);
 
       if (level < 10)
         line.append ("  ");
       else
         line.append (" ");
-      
+
       String name = HexFormatter.getString (buffer, ptr + 1, length);
       line.append (name);
 
       long nextLevel = 0;
-      int exp = HexFormatter.intValue (buffer[ptr + 124], buffer[ptr + 125])
-              + HexFormatter.intValue (buffer[ptr + 126], buffer[ptr + 127])
-              * 10000;
-      
+      int exp = Utility.intValue (buffer[ptr + 124], buffer[ptr + 125])
+          + Utility.intValue (buffer[ptr + 126], buffer[ptr + 127]) * 10000;
+
       for (Character character : characters)
-        if (character.getName().equals (name))
+        if (character.getName ().equals (name))
         {
           nextLevel = character.getNextLevel ();
           break;
         }
-      
+
       String expNeeded = nf.format ((nextLevel - exp));
       while (line.length () < 28 - expNeeded.length ())
         line.append (" ");
@@ -185,8 +184,8 @@ public class AppleDump
     {
       int ptr = 28206 + i * 292;
 
-      int totalMonsters = HexFormatter.intValue (buffer[ptr + 2]);
-      int originalTotalMonsters = HexFormatter.intValue (buffer[ptr + 4]);
+      int totalMonsters = buffer[ptr + 2] & 0xFF;
+      int originalTotalMonsters = buffer[ptr + 4] & 0xFF;
       int monster = buffer[ptr + 6];
       if (totalMonsters < 0 || totalMonsters > 12 || monster == -1)
         break;
@@ -196,12 +195,12 @@ public class AppleDump
 
       if (totalMonsters == 1)
       {
-        int length = HexFormatter.intValue (buffer[ptr + 166]);
+        int length = buffer[ptr + 166] & 0xFF;
         name = HexFormatter.getString (buffer, ptr + 167, length);
       }
       else
       {
-        int length = HexFormatter.intValue (buffer[ptr + 182]);
+        int length = buffer[ptr + 182] & 0xFF;
         name = HexFormatter.getString (buffer, ptr + 183, length);
       }
 
@@ -209,8 +208,7 @@ public class AppleDump
       // text.append (HexFormatter.format2 (buffer[ptr + j]) + " ");
 
       text.append (totalMonsters + " " + name);
-      text.append (" (" + exp + "/" + HexFormatter.format2 (buffer[ptr + 6])
-              + ")\n");
+      text.append (" (" + exp + "/" + HexFormatter.format2 (buffer[ptr + 6]) + ")\n");
 
       for (int j = 0; j < totalMonsters; j++)
       {
@@ -218,15 +216,13 @@ public class AppleDump
         // for (int k = 0; k < 14; k++)
         // text.append (HexFormatter.format2 (buffer[ptr + 8 + j * 14 + k])
         // + " ");
-        text.append ("#" + (j + 1) + " "
-                + +HexFormatter.intValue (buffer[ptr + 14 + j * 14]) + "HP");
+        text.append ("#" + (j + 1) + " " + (buffer[ptr + 14 + j * 14] & 0xFF) + "HP");
         text.append ("\n");
       }
       text.append ("\n");
     }
 
-    text.append ("Total experience : " + totalExperience / totalCharacters
-            + " each");
+    text.append ("Total experience : " + totalExperience / totalCharacters + " each");
 
     return text.toString ();
   }
@@ -245,6 +241,7 @@ public class AppleDump
     return text.toString ();
   }
 
+  @Override
   public String toString ()
   {
     if (buffer == null)

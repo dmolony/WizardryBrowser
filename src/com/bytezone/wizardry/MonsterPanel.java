@@ -15,8 +15,6 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import com.bytezone.disk.HexFormatter;
-
 public class MonsterPanel extends JPanel
 {
   private ArrayList<Monster> monsters;
@@ -30,7 +28,7 @@ public class MonsterPanel extends JPanel
 
   private NumberFormat nf = NumberFormat.getNumberInstance ();
 
-  public MonsterPanel()
+  public MonsterPanel ()
   {
     setPreferredSize (new Dimension (500, 380));
     headerFont = new Font ("Verdana", Font.BOLD, 24);
@@ -40,6 +38,7 @@ public class MonsterPanel extends JPanel
 
     addKeyListener (new KeyAdapter ()
     {
+      @Override
       public void keyPressed (KeyEvent e)
       {
         int c = e.getKeyCode ();
@@ -83,6 +82,7 @@ public class MonsterPanel extends JPanel
     return currentMonster;
   }
 
+  @Override
   public void paintComponent (Graphics g)
   {
     super.paintComponent (g);
@@ -146,9 +146,8 @@ public class MonsterPanel extends JPanel
     g.drawString ("Appears with", x, y);
     int odds = m.getPartnerOdds ();
     if (odds > 0)
-      g.drawString (m.getPartnerID () + ":"
-              + monsters.get (m.getPartnerID ()).getRealName () + " (" + odds
-              + "%)", x1, y);
+      g.drawString (m.getPartnerID () + ":" + monsters.get (m.getPartnerID ()).getRealName () + " ("
+          + odds + "%)", x1, y);
     else
       g.drawString ("None", x1, y);
     y += lineHeight;
@@ -158,29 +157,29 @@ public class MonsterPanel extends JPanel
     y = 160;
 
     g.drawString ("Unknown 1", x, y);
-    g.drawString (HexFormatter.format2 (m.data[132]), x1, y);
+    g.drawString (String.format ("%02X", m.data[132]), x1, y);
     g.drawString ("(level drain?)", x1 + 40, y);
     y += lineHeight;
 
     g.drawString ("Unknown 2", x, y);
-    g.drawString (HexFormatter.format2 (m.data[134]), x1, y);
+    g.drawString (String.format ("%02X", m.data[134]), x1, y);
     y += lineHeight;
 
     g.drawString ("Ability 1", x, y);
-    g.drawString (HexFormatter.format2 (m.data[150]), x1, y);
+    g.drawString (String.format ("%02X", m.data[150]), x1, y);
     g.drawString ("(breathing?)", x1 + 40, y);
     y += lineHeight;
 
     g.drawString ("Ability 2", x, y);
-    g.drawString (HexFormatter.format2 (m.data[152]), x1, y);
+    g.drawString (String.format ("%02X", m.data[152]), x1, y);
     y += lineHeight;
 
     g.drawString ("Ability 3", x, y);
-    g.drawString (HexFormatter.format2 (m.data[154]), x1, y);
+    g.drawString (String.format ("%02X", m.data[154]), x1, y);
     y += lineHeight;
 
     g.drawString ("Ability 4", x, y);
-    g.drawString (HexFormatter.format2 (m.data[156]), x1, y);
+    g.drawString (String.format ("%02X", m.data[156]), x1, y);
     y += lineHeight;
 
     if (images != null)

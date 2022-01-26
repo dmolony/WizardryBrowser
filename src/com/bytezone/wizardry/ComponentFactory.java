@@ -9,9 +9,9 @@ import java.util.List;
 
 import com.bytezone.disk.DOSDiskImage;
 import com.bytezone.disk.DiskImage;
-import com.bytezone.disk.HexFormatter;
-import com.bytezone.utilities.StringBuilder2;
-import static com.bytezone.wizardry.Spell.SpellType;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
+import com.bytezone.diskbrowser.utilities.Utility;
+import com.bytezone.wizardry.Spell.SpellType;
 
 public class ComponentFactory
 {
@@ -43,10 +43,10 @@ public class ComponentFactory
   private static final int IMAGE_AREA = 6;
   private static final int EXPERIENCE_AREA = 7;
 
-  static String[] typeText = { "header", "maze", "monsters", "??", "items",
-          "characters", "images", "char levels" };
+  static String[] typeText =
+      { "header", "maze", "monsters", "??", "items", "characters", "images", "char levels" };
 
-  public ComponentFactory(File file) throws NotAWizardryDisk, NotAnAppleDisk
+  public ComponentFactory (File file) throws NotAWizardryDisk, NotAnAppleDisk
   {
     disk = DiskImage.createDiskImage (file);
 
@@ -64,7 +64,7 @@ public class ComponentFactory
       scenario = 1;
     else if (version.equals ("KOD"))
     {
-      switch (HexFormatter.intValue (buffer[28]))
+      switch (buffer[28] & 0xFF)
       {
         case 148:
           scenario = 2;
@@ -84,17 +84,15 @@ public class ComponentFactory
     for (int i = 0; i < 4; i++)
     {
       int ptr = i * 26;
-      componentBlocksFrom[i] = HexFormatter.intValue (buffer[ptr],
-              buffer[ptr + 1]);
-      componentBlocksTo[i] = HexFormatter.intValue (buffer[ptr + 2],
-              buffer[ptr + 3]);
+      componentBlocksFrom[i] = Utility.intValue (buffer[ptr], buffer[ptr + 1]);
+      componentBlocksTo[i] = Utility.intValue (buffer[ptr + 2], buffer[ptr + 3]);
       if (false)
       {
-        int dunno = HexFormatter.intValue (buffer[ptr + 4], buffer[ptr + 5]);
-        int length = HexFormatter.intValue (buffer[ptr + 6]);
+        int dunno = Utility.intValue (buffer[ptr + 4], buffer[ptr + 5]);
+        int length = buffer[ptr + 6] & 0xFF;
         String header = HexFormatter.getString (buffer, ptr + 7, length);
-        System.out.println (componentBlocksFrom[i] + " "
-                + componentBlocksTo[i] + " " + dunno + " " + header);
+        System.out.println (
+            componentBlocksFrom[i] + " " + componentBlocksTo[i] + " " + dunno + " " + header);
       }
     }
 
@@ -103,7 +101,7 @@ public class ComponentFactory
 
     if (true)
     {
-      int length = HexFormatter.intValue (buffer[0]);
+      int length = buffer[0] & 0xFF;
       String scenarioTitle = HexFormatter.getString (buffer, 1, length);
       System.out.println (scenarioTitle);
     }
@@ -131,7 +129,7 @@ public class ComponentFactory
       int type = c.getStatistics ().typeInt;
       c.linkExperience (experiences.get (type));
     }
-    
+
     for (Monster m : monsters)
       m.linkMonsters (monsters);
 
@@ -207,7 +205,7 @@ public class ComponentFactory
 
       for (int ptr = 0; ptr < 504; ptr += recLen)
       {
-        int length = HexFormatter.intValue (buffer[ptr]);
+        int length = buffer[ptr] & 0xFF;
         codeOffset--;
 
         if (scenario == 1)
@@ -224,7 +222,7 @@ public class ComponentFactory
         }
         System.out.println (id + " : " + text);
 
-        int lastLine = HexFormatter.intValue (buffer[ptr + 40]);
+        int lastLine = buffer[ptr + 40] & 0xFF;
         lines.add (text);
 
         if (lastLine == 1)
@@ -257,11 +255,9 @@ public class ComponentFactory
         if (buffer[ptr] == 0)
           break;
 
-        long points = HexFormatter.intValue (buffer[ptr], buffer[ptr + 1])
-                + HexFormatter.intValue (buffer[ptr + 2], buffer[ptr + 3])
-                * 10000
-                + HexFormatter.intValue (buffer[ptr + 4], buffer[ptr + 5])
-                * 100000000L;
+        long points = Utility.intValue (buffer[ptr], buffer[ptr + 1])
+            + Utility.intValue (buffer[ptr + 2], buffer[ptr + 3]) * 10000
+            + Utility.intValue (buffer[ptr + 4], buffer[ptr + 5]) * 100000000L;
         levelsArray[seq++] = points;
         if (seq == 13)
         {
@@ -287,15 +283,14 @@ public class ComponentFactory
       if (buffer[0] == -61 && buffer[1] == -115)
         fixSlime (buffer);
 
-      BufferedImage image = new BufferedImage (70, 50,
-              BufferedImage.TYPE_BYTE_GRAY);
+      BufferedImage image = new BufferedImage (70, 50, BufferedImage.TYPE_BYTE_GRAY);
       DataBuffer db = image.getRaster ().getDataBuffer ();
       int element = 0;
       for (int j = 0; j < 500; j += 10)
       {
         for (int k = 0; k < 10; k++)
         {
-          int bits = HexFormatter.intValue (buffer[j + k]);
+          int bits = buffer[j + k] & 0xFF;
           for (int m = 0; m < 7; m++)
           {
             if ((bits & 1) == 1)
@@ -348,11 +343,9 @@ public class ComponentFactory
       {
         if (buffer[ptr] == 0)
           break;
-        long points = HexFormatter.intValue (buffer[ptr], buffer[ptr + 1])
-                + HexFormatter.intValue (buffer[ptr + 2], buffer[ptr + 3])
-                * 10000
-                + HexFormatter.intValue (buffer[ptr + 4], buffer[ptr + 5])
-                * 100000000L;
+        long points = Utility.intValue (buffer[ptr], buffer[ptr + 1])
+            + Utility.intValue (buffer[ptr + 2], buffer[ptr + 3]) * 10000
+            + Utility.intValue (buffer[ptr + 4], buffer[ptr + 5]) * 100000000L;
         StringBuilder2 line = new StringBuilder2 (++counter + " ");
         while (line.length () < 4)
           line.append (" ");
@@ -423,7 +416,7 @@ public class ComponentFactory
     int recLen = 78;
     for (int ptr = 0; ptr < 1014; ptr += recLen)
     {
-      int nameLength = HexFormatter.intValue (buffer[ptr]);
+      int nameLength = buffer[ptr] & 0xFF;
 
       if (nameLength == 0)
         break;
@@ -456,7 +449,7 @@ public class ComponentFactory
     int recLen = 208;
     for (int ptr = 0; ptr < 832; ptr += recLen)
     {
-      int nameLength = HexFormatter.intValue (buffer[ptr]);
+      int nameLength = buffer[ptr] & 0xFF;
       if (nameLength == 0xC3 || buffer[ptr + 40] == 0x07)
         continue;
 
@@ -508,7 +501,7 @@ public class ComponentFactory
     int recLen = 158;
     for (int ptr = 0; ptr < 948; ptr += recLen)
     {
-      int nameLength = HexFormatter.intValue (buffer[ptr]);
+      int nameLength = buffer[ptr] & 0xFF;
       if (nameLength == 0 || nameLength == 255)
         break;
       String itemName = HexFormatter.getString (buffer, ptr + 1, nameLength);
@@ -592,7 +585,7 @@ public class ComponentFactory
   {
     private long[] expLevels;
 
-    public ExperienceLevel(long[] data)
+    public ExperienceLevel (long[] data)
     {
       expLevels = new long[13];
       for (int i = 0; i < 13; i++)
@@ -606,6 +599,7 @@ public class ComponentFactory
       return (level - 12) * expLevels[0] + expLevels[12];
     }
 
+    @Override
     public String toString ()
     {
       StringBuilder line = new StringBuilder ();
@@ -623,16 +617,17 @@ public class ComponentFactory
     int dataOffset;
     int type;
 
-    public ScenarioData(byte[] buffer, int seq)
+    public ScenarioData (byte[] buffer, int seq)
     {
       int offset = 42 + seq * 2;
-      dunno = HexFormatter.intValue (buffer[offset]);
-      total = HexFormatter.intValue (buffer[offset + 16]);
-      totalBlocks = HexFormatter.intValue (buffer[offset + 32]);
-      dataOffset = HexFormatter.intValue (buffer[offset + 48]);
+      dunno = buffer[offset] & 0xFF;
+      total = buffer[offset + 16] & 0xFF;
+      totalBlocks = buffer[offset + 32] & 0xFF;
+      dataOffset = buffer[offset + 48] & 0xFF;
       type = seq;
     }
 
+    @Override
     public String toString ()
     {
       StringBuilder line = new StringBuilder (typeText[type]);
@@ -656,7 +651,7 @@ public class ComponentFactory
 
 class NotAWizardryDisk extends Exception
 {
-  NotAWizardryDisk(String s)
+  NotAWizardryDisk (String s)
   {
     super (s);
   }

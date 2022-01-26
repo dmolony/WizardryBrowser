@@ -1,7 +1,18 @@
 package com.bytezone.wizardry;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.LayoutManager;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -14,17 +25,40 @@ import java.util.prefs.Preferences;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 import com.bytezone.disk.*;
-import com.bytezone.utilities.NumberRenderer;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
+import com.bytezone.diskbrowser.utilities.NumberRenderer;
 import com.bytezone.utilities.SortFilterModel;
+import com.bytezone.wizardry.Spell.SpellType;
 
-import static com.bytezone.wizardry.Spell.SpellType;
 import de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel;
 
 public class ScenarioBrowser extends JFrame
@@ -52,21 +86,19 @@ public class ScenarioBrowser extends JFrame
   private ComponentFactory factory;
   private File savedStateFile;
   private AppleDump saveState;
-  private Preferences prefs = Preferences.userNodeForPackage (this
-          .getClass ());
+  private Preferences prefs = Preferences.userNodeForPackage (this.getClass ());
   private static String windowTitle = "Wizardry Scenario Browser";
   private static String VERSION = "0.984";
   private JMenu menuDisplay;
   private Font baseFont = new Font ("Lucida Console", Font.PLAIN, 13);
-  private LookAndFeelInfo[] installedLAF = UIManager
-          .getInstalledLookAndFeels ();
+  private LookAndFeelInfo[] installedLAF = UIManager.getInstalledLookAndFeels ();
   private MonsterPanel monsterPanel;
   private JTable monsterTable;
   private JTable itemTable;
   private JTable characterTable;
   private JTextArea cheatText;
 
-  public ScenarioBrowser()
+  public ScenarioBrowser ()
   {
     super (windowTitle);
 
@@ -122,16 +154,13 @@ public class ScenarioBrowser extends JFrame
     if (f.exists ())
     {
       diskSelected (f);
-      characterTabbedPane.setSelectedIndex (prefs.getInt (
-              "Current character", 0));
+      characterTabbedPane.setSelectedIndex (prefs.getInt ("Current character", 0));
       int currentMaze = prefs.getInt ("Current maze", 0);
       if (currentMaze >= mazeTabbedPane.getTabCount ())
         currentMaze = 0;
       mazeTabbedPane.setSelectedIndex (currentMaze);
-      priestSpellsTabbedPane.setSelectedIndex (prefs.getInt (
-              "Current priest spell", 0));
-      mageSpellsTabbedPane.setSelectedIndex (prefs.getInt (
-              "Current mage spell", 0));
+      priestSpellsTabbedPane.setSelectedIndex (prefs.getInt ("Current priest spell", 0));
+      mageSpellsTabbedPane.setSelectedIndex (prefs.getInt ("Current mage spell", 0));
 
       savedStateFile = new File (f.getParent () + "\\SaveState.aws");
       if (savedStateFile.exists ())
@@ -142,8 +171,8 @@ public class ScenarioBrowser extends JFrame
       ssc.start ();
     }
     if (savedStateFile == null || !savedStateFile.exists ())
-      cheatText.setText ("Use the SaveState feature of AppleWin to "
-              + "save the current state of the game.\n"
+      cheatText.setText (
+          "Use the SaveState feature of AppleWin to " + "save the current state of the game.\n"
               + "Save the file using the default file name (SaveState.aws)"
               + " and in the same folder\nas your scenario file.");
     pack ();
@@ -162,6 +191,7 @@ public class ScenarioBrowser extends JFrame
 
     addWindowListener (new WindowAdapter ()
     {
+      @Override
       public void windowClosing (WindowEvent e)
       {
         savePreferences ();
@@ -174,10 +204,9 @@ public class ScenarioBrowser extends JFrame
   {
     saveState = new AppleDump (savedStateFile);
     saveState.setItems (items);
-    saveState.setCharacters(characters);
-    cheatText.setText ("Location : " + saveState.getLocation ()
-            + "\n\nParty:\n\n" + saveState.getCharacters ()
-            + "\n\nMonsters:\n\n" + saveState.getBiffo ());
+    saveState.setCharacters (characters);
+    cheatText.setText ("Location : " + saveState.getLocation () + "\n\nParty:\n\n"
+        + saveState.getCharacters () + "\n\nMonsters:\n\n" + saveState.getBiffo ());
   }
 
   private void setMenus ()
@@ -199,6 +228,7 @@ public class ScenarioBrowser extends JFrame
 
     ActionListener guiListener = new ActionListener ()
     {
+      @Override
       public void actionPerformed (ActionEvent e)
       {
         setGUI (e.getActionCommand ());
@@ -233,6 +263,7 @@ public class ScenarioBrowser extends JFrame
 
     menuItemOpen.addActionListener (new ActionListener ()
     {
+      @Override
       public void actionPerformed (ActionEvent e)
       {
         JFileChooser chooser = new JFileChooser ();
@@ -254,22 +285,19 @@ public class ScenarioBrowser extends JFrame
 
     menuItemPrint.addActionListener (new ActionListener ()
     {
+      @Override
       public void actionPerformed (ActionEvent e)
       {
         Printable printable = null;
         if (mainTabbedPane.getSelectedComponent () == monsterScrollPane)
           printable = monsterTable.getPrintable (JTable.PrintMode.FIT_WIDTH,
-                  new MessageFormat ("Monsters"), new MessageFormat (
-                          "Page - {0}"));
+              new MessageFormat ("Monsters"), new MessageFormat ("Page - {0}"));
         if (mainTabbedPane.getSelectedComponent () == itemScrollPane)
           printable = itemTable.getPrintable (JTable.PrintMode.FIT_WIDTH,
-                  new MessageFormat ("Items"), new MessageFormat (
-                          "Page - {0}"));
+              new MessageFormat ("Items"), new MessageFormat ("Page - {0}"));
         if (mainTabbedPane.getSelectedComponent () == characterTabbedPane)
-          printable = characterTable.getPrintable (
-                  JTable.PrintMode.FIT_WIDTH,
-                  new MessageFormat ("Characters"), new MessageFormat (
-                          "Page - {0}"));
+          printable = characterTable.getPrintable (JTable.PrintMode.FIT_WIDTH,
+              new MessageFormat ("Characters"), new MessageFormat ("Page - {0}"));
 
         if (printable == null)
           return;
@@ -305,6 +333,7 @@ public class ScenarioBrowser extends JFrame
 
     menuItemRefresh.addActionListener (new ActionListener ()
     {
+      @Override
       public void actionPerformed (ActionEvent e)
       {
         if (factory != null)
@@ -314,15 +343,14 @@ public class ScenarioBrowser extends JFrame
 
     menuItemAbout.addActionListener (new ActionListener ()
     {
+      @Override
       public void actionPerformed (ActionEvent e)
       {
         JOptionPane.showMessageDialog (ScenarioBrowser.this,
-                "Wizardry Scenario Browser - version " + VERSION
-                        + "\nCopyright Denis Molony 2004"
-                        + "\nContact : apple@bytezone.com"
-                        + "\nJava level : "
-                        + System.getProperty ("java.version"),
-                "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
+            "Wizardry Scenario Browser - version " + VERSION + "\nCopyright Denis Molony 2004"
+                + "\nContact : apple@bytezone.com" + "\nJava level : "
+                + System.getProperty ("java.version"),
+            "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
       }
     });
   }
@@ -423,13 +451,13 @@ public class ScenarioBrowser extends JFrame
 
     th.addMouseListener (new MouseAdapter ()
     {
+      @Override
       public void mouseClicked (MouseEvent event)
       {
         if (event.getClickCount () < 2)
           return;
         int tableColumn = characterTable.columnAtPoint (event.getPoint ());
-        int modelColumn = characterTable
-                .convertColumnIndexToModel (tableColumn);
+        int modelColumn = characterTable.convertColumnIndexToModel (tableColumn);
         if (modelColumn <= 3 || modelColumn == 5)
           sortFilter.sort (modelColumn, SortFilterModel.ASCENDING);
         else
@@ -485,7 +513,7 @@ public class ScenarioBrowser extends JFrame
       {
         Character character = i.next ();
         characterTabbedPane.add (character.getName ().toLowerCase (),
-                new JScrollPane (new CharacterPanel (character)));
+            new JScrollPane (new CharacterPanel (character)));
       }
       if (currentTab >= characterTabbedPane.getTabCount ())
         currentTab = -1;
@@ -516,11 +544,10 @@ public class ScenarioBrowser extends JFrame
     for (MazeDataModel model : mazes)
     {
       MazePane p = new MazePane (model);
-      mazeTabbedPane.addTab (" Level " + (model.getLevel ()) + " ",
-              new JScrollPane (p));
-//      p.setMessages (messages);
-//      p.setMonsters (monsters);
-//      p.setItems (items);
+      mazeTabbedPane.addTab (" Level " + (model.getLevel ()) + " ", new JScrollPane (p));
+      //      p.setMessages (messages);
+      //      p.setMonsters (monsters);
+      //      p.setItems (items);
     }
 
     mazeTabbedPane.setSelectedIndex (saveTab < 0 ? 0 : saveTab);
@@ -537,22 +564,22 @@ public class ScenarioBrowser extends JFrame
     monsterTable.setShowGrid (true);
     monsterTable.setShowVerticalLines (false);
 
-    monsterTable.getSelectionModel ().addListSelectionListener (
-            new ListSelectionListener ()
-            {
-              public void valueChanged (ListSelectionEvent e)
-              {
-                DefaultListSelectionModel lsl = (DefaultListSelectionModel) e
-                        .getSource ();
-                if (e.getValueIsAdjusting () || lsl.isSelectionEmpty ())
-                  return;
-                int row = monsterTable.getSelectedRow ();
-                monsterPanel.setMonster (sortFilter.translateRow (row));
-              }
-            });
+    monsterTable.getSelectionModel ().addListSelectionListener (new ListSelectionListener ()
+    {
+      @Override
+      public void valueChanged (ListSelectionEvent e)
+      {
+        DefaultListSelectionModel lsl = (DefaultListSelectionModel) e.getSource ();
+        if (e.getValueIsAdjusting () || lsl.isSelectionEmpty ())
+          return;
+        int row = monsterTable.getSelectedRow ();
+        monsterPanel.setMonster (sortFilter.translateRow (row));
+      }
+    });
 
     monsterTable.addMouseListener (new MouseAdapter ()
     {
+      @Override
       public void mouseClicked (MouseEvent e)
       {
         if (e.getClickCount () == 2)
@@ -568,13 +595,13 @@ public class ScenarioBrowser extends JFrame
 
     th.addMouseListener (new MouseAdapter ()
     {
+      @Override
       public void mouseClicked (MouseEvent event)
       {
         if (event.getClickCount () < 2)
           return;
         int tableColumn = monsterTable.columnAtPoint (event.getPoint ());
-        int modelColumn = monsterTable
-                .convertColumnIndexToModel (tableColumn);
+        int modelColumn = monsterTable.convertColumnIndexToModel (tableColumn);
         if (modelColumn <= 3)
           sortFilter.sort (modelColumn, SortFilterModel.ASCENDING);
         else
@@ -640,6 +667,7 @@ public class ScenarioBrowser extends JFrame
 
     th.addMouseListener (new MouseAdapter ()
     {
+      @Override
       public void mouseClicked (MouseEvent event)
       {
         if (event.getClickCount () < 2)
@@ -725,13 +753,10 @@ public class ScenarioBrowser extends JFrame
       prefs.put ("Last disk used", factory.getFile ().getAbsolutePath ());
       prefs.put ("GUI", UIManager.getLookAndFeel ().getName ());
       prefs.putInt ("Current pane", mainTabbedPane.getSelectedIndex ());
-      prefs.putInt ("Current character", characterTabbedPane
-              .getSelectedIndex ());
+      prefs.putInt ("Current character", characterTabbedPane.getSelectedIndex ());
       prefs.putInt ("Current maze", mazeTabbedPane.getSelectedIndex ());
-      prefs.putInt ("Current priest spell", priestSpellsTabbedPane
-              .getSelectedIndex ());
-      prefs.putInt ("Current mage spell", mageSpellsTabbedPane
-              .getSelectedIndex ());
+      prefs.putInt ("Current priest spell", priestSpellsTabbedPane.getSelectedIndex ());
+      prefs.putInt ("Current mage spell", mageSpellsTabbedPane.getSelectedIndex ());
       prefs.putInt ("Window1x", this.getLocation ().x);
       prefs.putInt ("Window1y", this.getLocation ().y);
       prefs.putInt ("Window2x", monsterFrame.getLocation ().x);
@@ -744,8 +769,7 @@ public class ScenarioBrowser extends JFrame
   {
     Dimension screen = Toolkit.getDefaultToolkit ().getScreenSize ();
     Dimension window = this.getSize ();
-    setLocation ((screen.width - window.width) / 2,
-            (screen.height - window.height) / 3);
+    setLocation ((screen.width - window.width) / 2, (screen.height - window.height) / 3);
   }
 
   public static void main (String[] args)
@@ -753,7 +777,7 @@ public class ScenarioBrowser extends JFrame
     try
     {
       UIManager.setLookAndFeel (new SyntheticaStandardLookAndFeel ());
-//      UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
+      //      UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
     }
     catch (Exception e)
     {

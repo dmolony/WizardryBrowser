@@ -6,24 +6,24 @@ import java.awt.Graphics2D;
 import java.util.List;
 //import java.util.List;
 
-import com.bytezone.disk.HexFormatter;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
 
 public class MazeCell
 {
   static Dimension cellSize = new Dimension (22, 22); // size in pixels
-  
+
   boolean northWall;
   boolean southWall;
   boolean eastWall;
   boolean westWall;
-  
+
   boolean northDoor;
   boolean southDoor;
   boolean eastDoor;
   boolean westDoor;
 
   boolean darkness;
-  
+
   boolean stairs;
   boolean pit;
   boolean spinner;
@@ -33,28 +33,28 @@ public class MazeCell
   boolean rock;
   boolean teleport;
   boolean spellsBlocked;
-  
+
   int elevatorFrom;
   int elevatorTo;
-  
+
   int messageType;
   int monsterID = -1;
   int itemID;
-  
+
   int unknown;
-  
+
   MazeAddress address;
   MazeAddress addressTo;      // if teleport/stairs/chute
   public Message message;
   public List<Monster> monsters;
   public Item itemRequired;
   public Item itemObtained;
-  
+
   public MazeCell (MazeAddress address)
   {
     this.address = address;
   }
-  
+
   public void draw (Graphics2D g, int x, int y)
   {
     g.setColor (Color.WHITE);
@@ -115,8 +115,7 @@ public class MazeCell
     else if (rock)
       drawRock (g, x, y);
     else if (elevator)
-     drawElevator (g, x, y,
-     (elevatorTo - elevatorFrom + 1) / 2);
+      drawElevator (g, x, y, (elevatorTo - elevatorFrom + 1) / 2);
     else if (monsterID >= 0)
       drawMonster (g, x, y);
     else if (spellsBlocked)
@@ -132,8 +131,7 @@ public class MazeCell
 
   private void drawEast (Graphics2D g, int x, int y)
   {
-    g.drawLine (x + cellSize.width - 1, y + 1, x + cellSize.width - 1, y
-            + cellSize.height - 1);
+    g.drawLine (x + cellSize.width - 1, y + 1, x + cellSize.width - 1, y + cellSize.height - 1);
   }
 
   private void drawNorth (Graphics2D g, int x, int y)
@@ -143,8 +141,7 @@ public class MazeCell
 
   private void drawSouth (Graphics2D g, int x, int y)
   {
-    g.drawLine (x + 1, y + cellSize.height - 1, x + cellSize.width - 1, y
-            + cellSize.height - 1);
+    g.drawLine (x + 1, y + cellSize.height - 1, x + cellSize.width - 1, y + cellSize.height - 1);
   }
 
   private void drawStairsUp (Graphics2D g, int x, int y)
@@ -250,7 +247,7 @@ public class MazeCell
     g.drawLine (x + 14, y + 6, x + 14, y + 10);
     g.drawLine (x + 5, y + 5, x + 17, y + 5);
   }
-  
+
   public String getTooltipText ()
   {
     StringBuilder sign = new StringBuilder ("<html><pre>");
@@ -262,8 +259,7 @@ public class MazeCell
       sign.append (message.toHTMLString ());
 
     if (elevator)
-      sign.append ("&nbsp;Elevator: L" + elevatorFrom + "-L"
-              + elevatorTo + "&nbsp;");
+      sign.append ("&nbsp;Elevator: L" + elevatorFrom + "-L" + elevatorTo + "&nbsp;");
     if (stairs)
     {
       sign.append ("&nbsp;Stairs to ");
@@ -281,8 +277,8 @@ public class MazeCell
         sign.append ("castle&nbsp;");
       else
       {
-        sign.append ("L" + addressTo.level + " " + addressTo.row
-                + "N " + addressTo.column + "E&nbsp;");
+        sign.append (
+            "L" + addressTo.level + " " + addressTo.row + "N " + addressTo.column + "E&nbsp;");
       }
     }
     if (pit)
@@ -307,8 +303,7 @@ public class MazeCell
         while (monster.getPartnerOdds () == 100)
         {
           monster = monsters.get (monster.getPartnerID ());
-          sign.append ("<br>&nbsp;<b>" + monster.getRealName ()
-                  + "&nbsp;</b>");
+          sign.append ("<br>&nbsp;<b>" + monster.getRealName () + "&nbsp;</b>");
         }
       }
     if (itemRequired != null)

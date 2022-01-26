@@ -2,8 +2,7 @@ package com.bytezone.wizardry;
 
 import java.util.List;
 
-import com.bytezone.disk.HexFormatter;
-import com.bytezone.utilities.*;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
 
 public class Monster implements Comparable
 {
@@ -15,29 +14,27 @@ public class Monster implements Comparable
   byte[] data;
   static int counter = 0;
 
-  private static String[] monsterClass = { "Fighter", "Mage", "Priest",
-          "Thief", "Midget", "Giant", "Mythical", "Dragon", "Animal", "Were",
-          "Undead", "Demon", "Insect", "Enchanted" };
-  private static int[] experience = { 55, 235, 415, 230, 380, 620, 840, 520,
-          550, 350, // 00-09
-          475, 515, 920, 600, 735, 520, 795, 780, 990, 795, // 10-19
-          1360, 1320, 1275, 680, 960, 600, 755, 1120, 2070, 870, // 20-29
-          960, 1120, 1120, 2435, 1080, 2280, 975, 875, 1135, 1200, // 30-39
-          620, 740, 1460, 1245, 960, 1405, 1040, 1220, 1520, 995, // 40-49
-          665, 2340, 2160, 2395, 790, 1140, 1235, 1790, 1720, 2240, // 50-59
-          1475, 1540, 1720, 1900, 1240, 1220, 1020, 20435, 5100, 3515, // 60-69
-          2115, 2920, 2060, 2140, 1400, 1640, 1280, 4450, 42840, 3300, // 70-79
-          40875, 5000, 3300, 2395, 1935, 1600, 3330, 44090, 40840, 5200, // 80-89
-          4150, 3000, 9200, 3160, 7460, 0, 0, 0, 0, 1000, 0 // 90-100
+  private static String[] monsterClass = { "Fighter", "Mage", "Priest", "Thief", "Midget", "Giant",
+      "Mythical", "Dragon", "Animal", "Were", "Undead", "Demon", "Insect", "Enchanted" };
+  private static int[] experience = { 55, 235, 415, 230, 380, 620, 840, 520, 550, 350, // 00-09
+      475, 515, 920, 600, 735, 520, 795, 780, 990, 795, // 10-19
+      1360, 1320, 1275, 680, 960, 600, 755, 1120, 2070, 870, // 20-29
+      960, 1120, 1120, 2435, 1080, 2280, 975, 875, 1135, 1200, // 30-39
+      620, 740, 1460, 1245, 960, 1405, 1040, 1220, 1520, 995, // 40-49
+      665, 2340, 2160, 2395, 790, 1140, 1235, 1790, 1720, 2240, // 50-59
+      1475, 1540, 1720, 1900, 1240, 1220, 1020, 20435, 5100, 3515, // 60-69
+      2115, 2920, 2060, 2140, 1400, 1640, 1280, 4450, 42840, 3300, // 70-79
+      40875, 5000, 3300, 2395, 1935, 1600, 3330, 44090, 40840, 5200, // 80-89
+      4150, 3000, 9200, 3160, 7460, 0, 0, 0, 0, 1000, 0 // 90-100
   };
 
-  public Monster(String name, byte[] buffer)
+  public Monster (String name, byte[] buffer)
   {
     this.genericName = name;
     this.data = buffer;
 
     int len = data[32];
-    this.realName = HexFormatter.getString (data, 33, len);
+    this.realName = HexFormatter.format (data, 33, len);
 
     if (counter >= experience.length)
       counter = 0;
@@ -207,13 +204,13 @@ public class Monster implements Comparable
 
   private int getByte3 ()
   {
-    int bits = countBits (HexFormatter.intValue (data[154]), 1, 6);
+    int bits = countBits (data[154] & 0xFF, 1, 6);
     return 35 * (int) Math.pow (2, bits - 1);
   }
 
   private int getByte4 ()
   {
-    int bits = countBits (HexFormatter.intValue (data[156]), 0, 6);
+    int bits = countBits (data[156] & 0xFF, 0, 6);
     return 40 * (int) Math.pow (2, bits - 1);
   }
 
@@ -281,10 +278,9 @@ public class Monster implements Comparable
 
   public String getHitPoints ()
   {
-    StringBuilder text = new StringBuilder (HexFormatter.intValue (data[72])
-            + "d" + HexFormatter.intValue (data[74]));
+    StringBuilder text = new StringBuilder ((data[72] & 0xFF) + "d" + (data[74] & 0xFF));
     if (data[76] != 0)
-      text.append ("+" + HexFormatter.intValue (data[76]));
+      text.append ("+" + (data[76] & 0xFF));
     return text.toString ();
   }
 
@@ -307,10 +303,9 @@ public class Monster implements Comparable
         break;
       if (text.length () > 0)
         text.append (", ");
-      text.append (HexFormatter.intValue (data[ptr]) + "d"
-              + HexFormatter.intValue (data[ptr + 2]));
+      text.append ((data[ptr] & 0xFF) + "d" + (data[ptr + 2] & 0xFF));
       if (data[ptr + 4] != 0)
-        text.append ("+" + HexFormatter.intValue (data[ptr + 4]));
+        text.append ("+" + (data[ptr + 4] & 0xFF));
     }
     return text.toString ();
   }
@@ -319,10 +314,9 @@ public class Monster implements Comparable
   {
     StringBuilder text = new StringBuilder ();
 
-    text.append (HexFormatter.intValue (data[66]) + "d"
-            + HexFormatter.intValue (data[68]));
+    text.append ((data[66] & 0xFF) + "d" + (data[68] & 0xFF));
     if (data[70] != 0)
-      text.append ("+" + HexFormatter.intValue (data[70]));
+      text.append ("+" + (data[70] & 0xFF));
 
     return text.toString ();
   }
@@ -352,6 +346,7 @@ public class Monster implements Comparable
     return data[138];
   }
 
+  @Override
   public int compareTo (Object otherMonster)
   {
     int otherType = ((Monster) otherMonster).getType ();
@@ -363,6 +358,7 @@ public class Monster implements Comparable
     return 1;
   }
 
+  @Override
   public String toString ()
   {
     StringBuilder2 line = new StringBuilder2 (genericName);
@@ -379,6 +375,6 @@ public class Monster implements Comparable
   public static String getHeading ()
   {
     return new StringBuilder ().append ("Generic name       Real name")
-            .append ("         Lvl   AC    HP?\n").toString ();
+        .append ("         Lvl   AC    HP?\n").toString ();
   }
 }

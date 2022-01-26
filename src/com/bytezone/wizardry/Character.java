@@ -6,7 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bytezone.disk.HexFormatter;
+import com.bytezone.diskbrowser.utilities.HexFormatter;
+import com.bytezone.diskbrowser.utilities.Utility;
 import com.bytezone.wizardry.ComponentFactory.ExperienceLevel;
 
 public class Character
@@ -22,82 +23,81 @@ public class Character
 
   private static NumberFormat nf = NumberFormat.getInstance ();
 
-  static String[] races = { "No race", "Human", "Elf", "Dwarf", "Gnome",
-          "Hobbit" };
+  static String[] races = { "No race", "Human", "Elf", "Dwarf", "Gnome", "Hobbit" };
   static String[] alignments = { "Unalign", "Good", "Neutral", "Evil" };
-  static String[] types = { "Fighter", "Mage", "Priest", "Thief", "Bishop",
-          "Samurai", "Lord", "Ninja" };
-  static String[] statuses = { "OK", "Afraid", "Asleep", "Paralyze", "Stoned",
-          "Dead", "Ashes", "Lost" };
+  static String[] types =
+      { "Fighter", "Mage", "Priest", "Thief", "Bishop", "Samurai", "Lord", "Ninja" };
+  static String[] statuses =
+      { "OK", "Afraid", "Asleep", "Paralyze", "Stoned", "Dead", "Ashes", "Lost" };
 
-  public Character(byte[] buffer)
+  public Character (byte[] buffer)
   {
     this.data = buffer;
 
-    int nameLength = HexFormatter.intValue (data[0]);
-    String charName = HexFormatter.getString (data, 1, nameLength);
+    int nameLength = data[0] & 0xFF;
+    String charName = HexFormatter.format (data, 1, nameLength);
     name = charName;
 
     attributes = new Attributes ();
     stats = new Statistics ();
     attributes.array = new int[6];
 
-    stats.race = races[HexFormatter.intValue (data[34])];
-    stats.typeInt = HexFormatter.intValue (data[36]);
+    stats.race = races[data[34] & 0xFF];
+    stats.typeInt = data[36] & 0xFF;
     stats.type = types[stats.typeInt];
-    stats.ageInWeeks = HexFormatter.intValue (data[38], data[39]);
+    stats.ageInWeeks = Utility.intValue (data[38], data[39]);
     stats.statusValue = data[40];
     stats.status = statuses[stats.statusValue];
-    stats.alignment = alignments[HexFormatter.intValue (data[42])];
+    stats.alignment = alignments[data[42] & 0xFF];
 
-    stats.gold = HexFormatter.intValue (data[52], data[53])
-            + HexFormatter.intValue (data[54], data[55]) * 10000;
-    stats.experience = HexFormatter.intValue (data[124], data[125])
-            + HexFormatter.intValue (data[126], data[127]) * 10000;
-    stats.level = HexFormatter.intValue (data[132], data[133]);
+    stats.gold =
+        Utility.intValue (data[52], data[53]) + Utility.intValue (data[54], data[55]) * 10000;
+    stats.experience =
+        Utility.intValue (data[124], data[125]) + Utility.intValue (data[126], data[127]) * 10000;
+    stats.level = Utility.intValue (data[132], data[133]);
 
-    stats.hitsLeft = HexFormatter.intValue (data[134], data[135]);
-    stats.hitsMax = HexFormatter.intValue (data[136], data[137]);
+    stats.hitsLeft = Utility.intValue (data[134], data[135]);
+    stats.hitsMax = Utility.intValue (data[136], data[137]);
     stats.armourClass = data[176];
 
-    attributes.strength = HexFormatter.intValue (data[44]) % 16;
+    attributes.strength = (data[44] & 0xFF) % 16;
     if (attributes.strength < 3)
       attributes.strength += 16;
     attributes.array[0] = attributes.strength;
 
-    int i1 = HexFormatter.intValue (data[44]) / 16;
-    int i2 = HexFormatter.intValue (data[45]) % 4;
+    int i1 = (data[44] & 0xFF) / 16;
+    int i2 = (data[45] & 0xFF) % 4;
     attributes.intelligence = i1 / 2 + i2 * 8;
     attributes.array[1] = attributes.intelligence;
 
-    attributes.piety = HexFormatter.intValue (data[45]) / 4;
+    attributes.piety = (data[45] & 0xFF) / 4;
     attributes.array[2] = attributes.piety;
 
-    attributes.vitality = HexFormatter.intValue (data[46]) % 16;
+    attributes.vitality = (data[46] & 0xFF) % 16;
     if (attributes.vitality < 3)
       attributes.vitality += 16;
     attributes.array[3] = attributes.vitality;
 
-    int a1 = HexFormatter.intValue (data[46]) / 16;
-    int a2 = HexFormatter.intValue (data[47]) % 4;
+    int a1 = (data[46] & 0xFF) / 16;
+    int a2 = (data[47] & 0xFF) % 4;
     attributes.agility = a1 / 2 + a2 * 8;
     attributes.array[4] = attributes.agility;
 
-    attributes.luck = HexFormatter.intValue (data[47]) / 4;
+    attributes.luck = (data[47] & 0xFF) / 4;
     attributes.array[5] = attributes.luck;
-    
+
     if (false)
     {
       StringBuilder line = new StringBuilder (name);
       while (line.length () < 12)
         line.append (" ");
-//      for (int i = 178; i < data.length; i++)
-//        for (int i = 146; i < 178; i++)
-//        for (int i = 108; i < 146; i++)
-//        for (int i = 68; i < 108; i++)
+      //      for (int i = 178; i < data.length; i++)
+      //        for (int i = 146; i < 178; i++)
+      //        for (int i = 108; i < 146; i++)
+      //        for (int i = 68; i < 108; i++)
       for (int i = 32; i < 68; i++)
-        line.append (HexFormatter.format2(data[i]) + " ");
-      System.out.println (line.toString());
+        line.append (HexFormatter.format2 (data[i]) + " ");
+      System.out.println (line.toString ());
     }
   }
 
@@ -110,7 +110,7 @@ public class Character
 
     for (int ptr = 60; totItems > 0; ptr += 8, totItems--)
     {
-      int itemID = HexFormatter.intValue (data[ptr + 6]);
+      int itemID = data[ptr + 6] & 0xFF;
       Item item = itemList.get (itemID);
       equipped = (data[ptr] == 1);
       identified = (data[ptr + 4] == 1);
@@ -135,11 +135,11 @@ public class Character
       }
     }
   }
-  
+
   public void linkExperience (ExperienceLevel exp)
   {
     this.experience = exp;
-    stats.nextLevel = exp.getExperiencePoints(stats.level);
+    stats.nextLevel = exp.getExperiencePoints (stats.level);
   }
 
   public int[] getMageSpellPoints ()
@@ -166,7 +166,7 @@ public class Character
   {
     return name;
   }
-  
+
   public Long getNextLevel ()
   {
     return stats.nextLevel;
@@ -217,6 +217,7 @@ public class Character
     return spellBook.iterator ();
   }
 
+  @Override
   public String toString ()
   {
     StringBuffer line = new StringBuffer (name);
@@ -238,13 +239,14 @@ class Baggage
   public boolean equipped;
   public boolean identified;
 
-  public Baggage(Item item, boolean equipped, boolean identified)
+  public Baggage (Item item, boolean equipped, boolean identified)
   {
     this.item = item;
     this.equipped = equipped;
     this.identified = identified;
   }
 
+  @Override
   public String toString ()
   {
     if (equipped)
