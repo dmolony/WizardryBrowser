@@ -2,6 +2,7 @@ package com.bytezone.wizardry;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -79,7 +80,7 @@ public class ScenarioBrowser extends JFrame
   private AppleDump saveState;
   private Preferences prefs = Preferences.userNodeForPackage (this.getClass ());
   private static String windowTitle = "Wizardry Scenario Browser";
-  private static String VERSION = "0.984";
+  private static String VERSION = "1.0";
   private JMenu menuDisplay;
   private Font baseFont = new Font ("Lucida Console", Font.PLAIN, 13);
   //  private Font baseFont = new Font ("Menlo", Font.PLAIN, 13);
@@ -88,6 +89,9 @@ public class ScenarioBrowser extends JFrame
   private JTable itemTable;
   private JTable characterTable;
   private JTextArea cheatText;
+
+  private static final String OS = System.getProperty ("os.name").toLowerCase ();
+  private static final boolean MAC = OS.startsWith ("mac os");
 
   public ScenarioBrowser ()
   {
@@ -183,13 +187,35 @@ public class ScenarioBrowser extends JFrame
     monsterFrame.setLocation (x, y);
     setVisible (true);
 
+    if (Desktop.isDesktopSupported ())
+    {
+      Desktop desktop = Desktop.getDesktop ();
+
+      if (desktop.isSupported (Desktop.Action.APP_ABOUT))
+        desktop.setAboutHandler (e -> about ());
+
+      if (desktop.isSupported (Desktop.Action.APP_QUIT_HANDLER))
+        desktop.setQuitHandler ( (e, r) -> savePreferences ());   // needed for cmd-Q
+
+      setQuitHandler ();        // needed for the close button
+    }
+    else
+    {
+      System.out.println ("Desktop not supported");
+      setQuitHandler ();
+    }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void setQuitHandler ()
+  // ---------------------------------------------------------------------------------//
+  {
     addWindowListener (new WindowAdapter ()
     {
       @Override
       public void windowClosing (WindowEvent e)
       {
         savePreferences ();
-        System.exit (0);
       }
     });
   }
@@ -210,35 +236,19 @@ public class ScenarioBrowser extends JFrame
 
     JMenu menuFile = new JMenu ("File");
     menuDisplay = new JMenu ("Display");
-    //    JMenu menuGUI = new JMenu ("GUI");
-    JMenu menuHelp = new JMenu ("Help");
+    //    JMenu menuHelp = new JMenu ("Help");
 
     JMenuItem menuItemOpen = new JMenuItem ("Open...");
     JMenuItem menuItemPrint = new JMenuItem ("Print...");
-    JMenuItem menuItemRefresh = new JMenuItem ("Refresh");
-    JMenuItem menuItemAbout = new JMenuItem ("About");
-
-    //    ButtonGroup guiGroup = new ButtonGroup ();
-
-    //    for (int i = 0; i < installedLAF.length; i++)
-    //    {
-    //      String guiName = installedLAF[i].getName ();
-    //      String currentGUI = UIManager.getLookAndFeel ().getName ();
-    //      JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem (guiName);
-    //      guiGroup.add (menuItem);
-    //      menuGUI.add (menuItem);
-    //
-    //      if (guiName.equals (currentGUI))
-    //        menuItem.setSelected (true);
-    //    }
+    //    JMenuItem menuItemAbout = new JMenuItem ("About");
 
     menuBar.add (menuFile);
-    menuBar.add (menuHelp);
+    //    menuBar.add (menuHelp);
 
     menuFile.add (menuItemOpen);
     menuFile.add (menuItemPrint);
 
-    menuHelp.add (menuItemAbout);
+    //    menuHelp.add (menuItemAbout);
 
     menuItemOpen.addActionListener (new ActionListener ()
     {
@@ -310,28 +320,27 @@ public class ScenarioBrowser extends JFrame
       }
     });
 
-    menuItemRefresh.addActionListener (new ActionListener ()
-    {
-      @Override
-      public void actionPerformed (ActionEvent e)
-      {
-        if (factory != null)
-          diskSelected (factory.getFile ());
-      }
-    });
+    //    menuItemAbout.addActionListener (new ActionListener ()
+    //    {
+    //      @Override
+    //      public void actionPerformed (ActionEvent e)
+    //      {
+    //        JOptionPane.showMessageDialog (ScenarioBrowser.this,
+    //            "Wizardry Scenario Browser - version " + VERSION + "\nCopyright Denis Molony 2004-2022"
+    //                + "\nContact : dmolony@iinet.net.au" + "\nJava level : "
+    //                + System.getProperty ("java.version"),
+    //            "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
+    //      }
+    //    });
+  }
 
-    menuItemAbout.addActionListener (new ActionListener ()
-    {
-      @Override
-      public void actionPerformed (ActionEvent e)
-      {
-        JOptionPane.showMessageDialog (ScenarioBrowser.this,
-            "Wizardry Scenario Browser - version " + VERSION + "\nCopyright Denis Molony 2004"
-                + "\nContact : apple@bytezone.com" + "\nJava level : "
-                + System.getProperty ("java.version"),
-            "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
-      }
-    });
+  private void about ()
+  {
+    JOptionPane.showMessageDialog (ScenarioBrowser.this,
+        "Wizardry Scenario Browser - version " + VERSION + "\nCopyright Denis Molony 2004-2022"
+            + "\nContact : dmolony@iinet.net.au" + "\nJava level : "
+            + System.getProperty ("java.version"),
+        "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
   }
 
   private void diskSelected (File file)
@@ -427,11 +436,11 @@ public class ScenarioBrowser extends JFrame
     TableColumnModel model = characterTable.getColumnModel ();
 
     // set desired column widths
-    model.getColumn (0).setMinWidth (100); // name
-    model.getColumn (4).setMaxWidth (35); // level
-    model.getColumn (5).setMaxWidth (35); // a/c
-    model.getColumn (6).setMaxWidth (35); // hits
-    model.getColumn (8).setMinWidth (80); // exp
+    model.getColumn (0).setMinWidth (100);    // name
+    model.getColumn (4).setMaxWidth (35);     // level
+    model.getColumn (5).setMaxWidth (35);     // a/c
+    model.getColumn (6).setMaxWidth (35);     // hits
+    model.getColumn (8).setMinWidth (80);     // exp
 
     model.getColumn (10).setPreferredWidth (30);
 
@@ -487,11 +496,6 @@ public class ScenarioBrowser extends JFrame
       imagePanel.setBackground (Color.BLACK);
       imagePanel.setScale (2);
       imagePane.add (imagePanel);
-
-      //      HiResPanel p = new HiResPanel (image);
-      //      p.setBackground (Color.BLACK);
-      //      p.setScale (2);
-      //      imagePane.add (p);
     }
   }
 
@@ -682,9 +686,9 @@ public class ScenarioBrowser extends JFrame
         continue;
       StringBuilder text = new StringBuilder ();
 
-      setHTMLHeader (text);
+      text.append ("<html>\n<head>\n");
       text.append (spell.toHTMLTable () + "\n");
-      setHTMLTrailer (text);
+      text.append ("</html>");
 
       JEditorPane ep = new JEditorPane ();
       ep.setContentType ("text/html");
@@ -695,31 +699,11 @@ public class ScenarioBrowser extends JFrame
     spellPane.setSelectedIndex (currentTab < 0 ? 0 : currentTab);
   }
 
-  private void setHTMLHeader (StringBuilder text)
-  {
-    text.append ("<html>\n<head>\n");
-    // text.append ("<title>Spelletjes</title>\n");
-
-    // text.append ("<style type=\"text/css\">\n");
-    // text.append ("body {font: Verdana}\n");
-    // text.append ("</style>\n");
-
-    // text.append ("</head>\n");
-    // text.append ("<body>\n");
-  }
-
-  private void setHTMLTrailer (StringBuilder text)
-  {
-    // text.append ("</body></html>");
-    text.append ("</html>");
-  }
-
   private void savePreferences ()
   {
     if (factory != null)
     {
       prefs.put ("Last disk used", factory.getFile ().getAbsolutePath ());
-      //      prefs.put ("GUI", UIManager.getLookAndFeel ().getName ());
       prefs.putInt ("Current pane", mainTabbedPane.getSelectedIndex ());
       prefs.putInt ("Current character", characterTabbedPane.getSelectedIndex ());
       prefs.putInt ("Current maze", mazeTabbedPane.getSelectedIndex ());
@@ -733,6 +717,8 @@ public class ScenarioBrowser extends JFrame
       prefs.putInt ("Window2y", monsterFrame.getLocation ().y);
       prefs.putInt ("Monster selected", monsterPanel.getCurrentMonster ());
     }
+
+    System.exit (0);
   }
 
   private void centre ()
@@ -746,8 +732,9 @@ public class ScenarioBrowser extends JFrame
   {
     try
     {
-      //      UIManager.setLookAndFeel (new SyntheticaStandardLookAndFeel ());
       UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ());
+      if (MAC)
+        System.setProperty ("apple.laf.useScreenMenuBar", "true");
     }
     catch (Exception e)
     {
