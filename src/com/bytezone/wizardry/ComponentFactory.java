@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.bytezone.diskbrowser.disk.Disk;
 import com.bytezone.diskbrowser.disk.DiskFactory;
+import com.bytezone.diskbrowser.disk.FormattedDisk;
 import com.bytezone.diskbrowser.utilities.HexFormatter;
 import com.bytezone.diskbrowser.utilities.Utility;
 import com.bytezone.wizardry.Spell.SpellType;
@@ -26,7 +27,7 @@ public class ComponentFactory
   private ArrayList<Monster> monsters;
   private ArrayList<MazeDataModel> levels;
   private ArrayList<ExperienceLevel> experiences;
-  private long[][] experienceLevels;
+  //  private long[][] experienceLevels;
   private int codeOffset;
   private int scenario;
   private Disk disk;
@@ -48,10 +49,12 @@ public class ComponentFactory
 
   public ComponentFactory (File file) throws NotAWizardryDisk, NotAnAppleDisk
   {
-    disk = DiskFactory.createDisk (file).getDisk ();
+    FormattedDisk fd = DiskFactory.createDisk (file);
 
-    if (disk == null)
+    if (fd == null)
       throw new NotAnAppleDisk ();
+
+    disk = fd.getDisk ();
 
     byte[] buffer = disk.readBlock (2);
     String text = new String (buffer, 59, 13);
@@ -77,7 +80,7 @@ public class ComponentFactory
     if (scenario == 0)
       System.out.println ("Unknown scenario : " + version);
 
-    getBlock (2, buffer);           // header record
+    //    getBlock (2, buffer);           // header record
     data = new ArrayList<ScenarioData> (8);
 
     for (int i = 0; i < 4; i++)
@@ -85,13 +88,14 @@ public class ComponentFactory
       int ptr = i * 26;
       componentBlocksFrom[i] = Utility.intValue (buffer[ptr], buffer[ptr + 1]);
       componentBlocksTo[i] = Utility.intValue (buffer[ptr + 2], buffer[ptr + 3]);
+
       if (false)
       {
-        int dunno = Utility.intValue (buffer[ptr + 4], buffer[ptr + 5]);
-        int length = buffer[ptr + 6] & 0xFF;
-        String header = HexFormatter.getString (buffer, ptr + 7, length);
-        System.out.println (
-            componentBlocksFrom[i] + " " + componentBlocksTo[i] + " " + dunno + " " + header);
+        int fileType = Utility.intValue (buffer[ptr + 4], buffer[ptr + 5]);
+        int nameLength = buffer[ptr + 6] & 0xFF;
+        String name = new String (buffer, ptr + 7, nameLength);
+        System.out.printf ("%3d  %3d  %3d  %s%n", fileType, componentBlocksFrom[i],
+            componentBlocksTo[i], name);
       }
     }
 
@@ -121,28 +125,16 @@ public class ComponentFactory
     extractExperienceLevels ();
     extractImages ();
 
-    for (Character c : characters)
+    for (Character character : characters)
     {
-      c.linkSpells (spells);
-      c.linkItems (items);
-      int type = c.getStatistics ().typeInt;
-      c.linkExperience (experiences.get (type));
+      character.linkSpells (spells);
+      character.linkItems (items);
+      int type = character.getStatistics ().typeInt;
+      character.linkExperience (experiences.get (type));
     }
 
     for (Monster m : monsters)
       m.linkMonsters (monsters);
-
-    if (false)
-    {
-      buffer = disk.readBlock (21, 1);
-      buffer[150] = 0;
-      buffer[152] = 96;
-      buffer[154] = 0;
-      buffer[156] = 0;
-      // System.out.println (HexFormatter.format (buffer, 0, 256));
-      //      ((DOSDiskImage) disk).putSector (21, 1, buffer);
-      //      ((DOSDiskImage) disk).save ();
-    }
   }
 
   public File getFile ()

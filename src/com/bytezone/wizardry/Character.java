@@ -85,20 +85,6 @@ public class Character
 
     attributes.luck = (data[47] & 0xFF) / 4;
     attributes.array[5] = attributes.luck;
-
-    if (false)
-    {
-      StringBuilder line = new StringBuilder (name);
-      while (line.length () < 12)
-        line.append (" ");
-      //      for (int i = 178; i < data.length; i++)
-      //        for (int i = 146; i < 178; i++)
-      //        for (int i = 108; i < 146; i++)
-      //        for (int i = 68; i < 108; i++)
-      for (int i = 32; i < 68; i++)
-        line.append (HexFormatter.format2 (data[i]) + " ");
-      System.out.println (line.toString ());
-    }
   }
 
   public void linkItems (List<Item> itemList)

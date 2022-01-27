@@ -19,17 +19,6 @@ public class Item implements Comparable<Item>
     type = data[32];
     cost = Utility.intValue (data[44], data[45]) + Utility.intValue (data[46], data[47]) * 10000
         + Utility.intValue (data[48], data[49]) * 100000000L;
-    /*
-    StringBuilder line = new StringBuilder (HexFormatter.format2(counter));
-    line.append (" " + name);
-    while (line.length () < 18)
-      line.append (" ");
-    for (int i = 32; i < 56; i++)
-    //    for (int i = 56; i < 78; i++)
-    //    for (int i = 150; i < 158; i++)
-      line.append (" " + HexFormatter.format2(buffer[i]));
-    System.out.println(line.toString());
-    counter++;*/
   }
 
   public String getName ()
