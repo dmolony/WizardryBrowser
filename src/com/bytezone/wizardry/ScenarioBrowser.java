@@ -26,7 +26,6 @@ import java.util.prefs.Preferences;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -36,16 +35,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -53,6 +49,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
+import com.bytezone.diskbrowser.gui.ImagePanel;
 import com.bytezone.diskbrowser.utilities.HexFormatter;
 import com.bytezone.wizardry.Spell.SpellType;
 
@@ -60,7 +57,6 @@ public class ScenarioBrowser extends JFrame
 {
   private JScrollPane monsterScrollPane;
   private JScrollPane itemScrollPane;
-  private JTabbedPane mapTabbedPane;
   private JTabbedPane mazeTabbedPane;
   private JTabbedPane priestSpellsTabbedPane;
   private JTabbedPane mageSpellsTabbedPane;
@@ -86,7 +82,7 @@ public class ScenarioBrowser extends JFrame
   private static String VERSION = "0.984";
   private JMenu menuDisplay;
   private Font baseFont = new Font ("Lucida Console", Font.PLAIN, 13);
-  private LookAndFeelInfo[] installedLAF = UIManager.getInstalledLookAndFeels ();
+  //  private Font baseFont = new Font ("Menlo", Font.PLAIN, 13);
   private MonsterPanel monsterPanel;
   private JTable monsterTable;
   private JTable itemTable;
@@ -96,8 +92,6 @@ public class ScenarioBrowser extends JFrame
   public ScenarioBrowser ()
   {
     super (windowTitle);
-
-    setGUI (prefs.get ("GUI", UIManager.getSystemLookAndFeelClassName ()));
 
     mainTabbedPane = new JTabbedPane ();
     this.add (mainTabbedPane, BorderLayout.CENTER);
@@ -172,12 +166,17 @@ public class ScenarioBrowser extends JFrame
               + " and in the same folder\nas your scenario file.");
     pack ();
 
-    int x = prefs.getInt ("Window1x", -99);
-    int y = prefs.getInt ("Window1y", -99);
-    if (x == -99 || y == -99)
+    int x = prefs.getInt ("Window1x", 0);
+    int y = prefs.getInt ("Window1y", 0);
+    int w = prefs.getInt ("Window1w", 0);
+    int h = prefs.getInt ("Window1h", 0);
+    if (x == 0 || y == 0 || w == 0 || h == 0)
       centre ();
     else
+    {
       this.setLocation (x, y);
+      this.setSize (w, h);
+    }
 
     x = prefs.getInt ("Window2x", 0);
     y = prefs.getInt ("Window2y", 0);
@@ -211,7 +210,7 @@ public class ScenarioBrowser extends JFrame
 
     JMenu menuFile = new JMenu ("File");
     menuDisplay = new JMenu ("Display");
-    JMenu menuGUI = new JMenu ("GUI");
+    //    JMenu menuGUI = new JMenu ("GUI");
     JMenu menuHelp = new JMenu ("Help");
 
     JMenuItem menuItemOpen = new JMenuItem ("Open...");
@@ -219,40 +218,25 @@ public class ScenarioBrowser extends JFrame
     JMenuItem menuItemRefresh = new JMenuItem ("Refresh");
     JMenuItem menuItemAbout = new JMenuItem ("About");
 
-    ButtonGroup guiGroup = new ButtonGroup ();
+    //    ButtonGroup guiGroup = new ButtonGroup ();
 
-    ActionListener guiListener = new ActionListener ()
-    {
-      @Override
-      public void actionPerformed (ActionEvent e)
-      {
-        setGUI (e.getActionCommand ());
-      }
-    };
-
-    for (int i = 0; i < installedLAF.length; i++)
-    {
-      String guiName = installedLAF[i].getName ();
-      String currentGUI = UIManager.getLookAndFeel ().getName ();
-      JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem (guiName);
-      guiGroup.add (menuItem);
-      menuGUI.add (menuItem);
-      menuItem.addActionListener (guiListener);
-      if (guiName.equals (currentGUI))
-        menuItem.setSelected (true);
-    }
+    //    for (int i = 0; i < installedLAF.length; i++)
+    //    {
+    //      String guiName = installedLAF[i].getName ();
+    //      String currentGUI = UIManager.getLookAndFeel ().getName ();
+    //      JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem (guiName);
+    //      guiGroup.add (menuItem);
+    //      menuGUI.add (menuItem);
+    //
+    //      if (guiName.equals (currentGUI))
+    //        menuItem.setSelected (true);
+    //    }
 
     menuBar.add (menuFile);
-    menuBar.add (menuDisplay);
     menuBar.add (menuHelp);
 
     menuFile.add (menuItemOpen);
     menuFile.add (menuItemPrint);
-
-    menuDisplay.add (menuGUI);
-    menuDisplay.addSeparator ();
-    menuDisplay.add (menuItemRefresh);
-    menuDisplay.setEnabled (false);
 
     menuHelp.add (menuItemAbout);
 
@@ -263,7 +247,7 @@ public class ScenarioBrowser extends JFrame
       {
         JFileChooser chooser = new JFileChooser ();
         chooser.setDialogTitle ("Select disk image");
-        chooser.addChoosableFileFilter (new DiskImageFilter ());
+        //        chooser.addChoosableFileFilter (new DiskImageFilter ());
 
         if (factory != null)
           chooser.setCurrentDirectory (factory.getFile ());
@@ -348,29 +332,6 @@ public class ScenarioBrowser extends JFrame
             "About ScenarioBrowser", JOptionPane.INFORMATION_MESSAGE);
       }
     });
-  }
-
-  private void setGUI (String lnf)
-  {
-    String name = null;
-    try
-    {
-      for (int i = 0; i < installedLAF.length; i++)
-      {
-        if (installedLAF[i].getName ().equals (lnf))
-        {
-          name = installedLAF[i].getClassName ();
-          break;
-        }
-      }
-
-      UIManager.setLookAndFeel (name);
-      SwingUtilities.updateComponentTreeUI (ScenarioBrowser.this);
-    }
-    catch (Exception ex)
-    {
-      System.out.println (ex);
-    }
   }
 
   private void diskSelected (File file)
@@ -521,10 +482,16 @@ public class ScenarioBrowser extends JFrame
     imagePane.removeAll ();
     for (BufferedImage image : images)
     {
-      HiResPanel p = new HiResPanel (image);
-      p.setBackground (Color.BLACK);
-      p.setScale (2);
-      imagePane.add (p);
+      ImagePanel imagePanel = new ImagePanel ();
+      imagePanel.setImage (image);
+      imagePanel.setBackground (Color.BLACK);
+      imagePanel.setScale (2);
+      imagePane.add (imagePanel);
+
+      //      HiResPanel p = new HiResPanel (image);
+      //      p.setBackground (Color.BLACK);
+      //      p.setScale (2);
+      //      imagePane.add (p);
     }
   }
 
@@ -535,6 +502,12 @@ public class ScenarioBrowser extends JFrame
 
     if (mazes == null)
       return;
+
+    if (mazes.size () == 0)
+    {
+      System.out.println ("No mazes found");
+      return;
+    }
 
     for (MazeDataModel model : mazes)
     {
@@ -746,7 +719,7 @@ public class ScenarioBrowser extends JFrame
     if (factory != null)
     {
       prefs.put ("Last disk used", factory.getFile ().getAbsolutePath ());
-      prefs.put ("GUI", UIManager.getLookAndFeel ().getName ());
+      //      prefs.put ("GUI", UIManager.getLookAndFeel ().getName ());
       prefs.putInt ("Current pane", mainTabbedPane.getSelectedIndex ());
       prefs.putInt ("Current character", characterTabbedPane.getSelectedIndex ());
       prefs.putInt ("Current maze", mazeTabbedPane.getSelectedIndex ());
@@ -754,6 +727,8 @@ public class ScenarioBrowser extends JFrame
       prefs.putInt ("Current mage spell", mageSpellsTabbedPane.getSelectedIndex ());
       prefs.putInt ("Window1x", this.getLocation ().x);
       prefs.putInt ("Window1y", this.getLocation ().y);
+      prefs.putInt ("Window1h", this.getHeight ());
+      prefs.putInt ("Window1w", this.getWidth ());
       prefs.putInt ("Window2x", monsterFrame.getLocation ().x);
       prefs.putInt ("Window2y", monsterFrame.getLocation ().y);
       prefs.putInt ("Monster selected", monsterPanel.getCurrentMonster ());

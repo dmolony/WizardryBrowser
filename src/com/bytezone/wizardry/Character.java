@@ -35,7 +35,7 @@ public class Character
     this.data = buffer;
 
     int nameLength = data[0] & 0xFF;
-    String charName = HexFormatter.format (data, 1, nameLength);
+    String charName = new String (data, 1, nameLength);
     name = charName;
 
     attributes = new Attributes ();

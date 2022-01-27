@@ -53,8 +53,8 @@ public class ComponentFactory
     if (disk == null)
       throw new NotAnAppleDisk ();
 
-    byte[] buffer = disk.readBlock (0, 11);
-    String text = HexFormatter.getString (buffer, 59, 13);
+    byte[] buffer = disk.readBlock (2);
+    String text = new String (buffer, 59, 13);
     if (!text.equals ("SCENARIO.DATA"))
       throw new NotAWizardryDisk (file.getAbsolutePath ());
 
@@ -77,8 +77,7 @@ public class ComponentFactory
     if (scenario == 0)
       System.out.println ("Unknown scenario : " + version);
 
-    buffer = new byte[512];
-    getBlock (2, buffer); // header record
+    getBlock (2, buffer);           // header record
     data = new ArrayList<ScenarioData> (8);
 
     for (int i = 0; i < 4; i++)
@@ -220,7 +219,7 @@ public class ComponentFactory
           }
           text = HexFormatter.getString (translation, 0, length);
         }
-        System.out.println (id + " : " + text);
+        //        System.out.println (id + " : " + text);
 
         int lastLine = buffer[ptr + 40] & 0xFF;
         lines.add (text);
@@ -339,6 +338,7 @@ public class ComponentFactory
     for (int i = 0; i < max; i++)
     {
       getBlock (firstBlock + i * 2, buffer);
+
       for (int ptr = 0; ptr + 6 <= buffer.length; ptr += 6)
       {
         if (buffer[ptr] == 0)
@@ -471,6 +471,7 @@ public class ComponentFactory
     for (int level = 0; level < max; level++)
     {
       getBlock (firstBlock + level * 2, buffer);
+
       byte[] data2 = new byte[896];
       System.arraycopy (buffer, 0, data2, 0, 896);
       MazeDataModel model = new MazeDataModel (data2, level + 1);
@@ -504,7 +505,7 @@ public class ComponentFactory
       int nameLength = buffer[ptr] & 0xFF;
       if (nameLength == 0 || nameLength == 255)
         break;
-      String itemName = HexFormatter.getString (buffer, ptr + 1, nameLength);
+      String itemName = new String (buffer, ptr + 1, nameLength);
 
       byte[] data2 = new byte[recLen];
       System.arraycopy (buffer, ptr, data2, 0, recLen);
@@ -525,12 +526,14 @@ public class ComponentFactory
         getBlock (154, buffer);
         addSpells (buffer, SpellType.PRIEST);
         break;
+
       case 2:
         getBlock (152, buffer);
         addSpells (buffer, SpellType.MAGE);
         getBlock (153, buffer);
         addSpells (buffer, SpellType.PRIEST);
         break;
+
       case 3:
         getBlock (161, buffer);
         addSpells (buffer, SpellType.MAGE);
@@ -564,26 +567,33 @@ public class ComponentFactory
     }
   }
 
-  private void getBlock (int block, byte[] buffer)
+  //  private void getBlock (int block, byte[] buffer)
+  //  {
+  //    for (int offset = 0; offset + 512 <= buffer.length; offset += 512)
+  //    {
+  //      int track = block / 8;
+  //      int index = block % 8;
+  //
+  //      int sector = (index == 0) ? 0 : 15 - index * 2;
+  //      disk.getSector (track, sector, buffer, offset);
+  //      disk.getSector (track, sector, buffer, offset);
+  //
+  //      sector = (sector <= 1) ? sector + 14 : sector - 1;
+  //      disk.getSector (track, sector, buffer, offset + 256);
+  //      disk.getSector (track, sector, buffer, offset + 256);
+  //
+  //      block++;
+  //    }
+  //  }
+
+  private void getBlock (int blockNo, byte[] buffer)
   {
-    for (int offset = 0; offset + 512 <= buffer.length; offset += 512)
+    int max = buffer.length / 512;
+
+    for (int i = 0; i < max; i++)
     {
-      int track = block / 8;
-      int index = block % 8;
-
-      int sector = (index == 0) ? 0 : 15 - index * 2;
-      //      disk.getSector (track, sector, buffer, offset);
-      byte[] buffer1 = disk.readBlock (track, sector);
-      //      disk.getSector (track, sector, buffer, offset);
-      System.arraycopy (buffer1, 0, buffer, offset, 256);
-
-      sector = (sector <= 1) ? sector + 14 : sector - 1;
-      //      disk.getSector (track, sector, buffer, offset + 256);
-      byte[] buffer2 = disk.readBlock (track, sector);
-      //      disk.getSector (track, sector, buffer, offset + 256);
-      System.arraycopy (buffer2, 0, buffer, offset + 256, 256);
-
-      block++;
+      byte[] tempBuffer = disk.readBlock (blockNo++);
+      System.arraycopy (tempBuffer, 0, buffer, i * 512, 512);
     }
   }
 

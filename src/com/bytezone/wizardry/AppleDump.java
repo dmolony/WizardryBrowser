@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import com.bytezone.diskbrowser.applefile.HiResImage;
+import com.bytezone.diskbrowser.applefile.OriginalHiResImage;
 import com.bytezone.diskbrowser.utilities.HexFormatter;
 import com.bytezone.diskbrowser.utilities.Utility;
 
@@ -157,7 +158,7 @@ public class AppleDump
     {
       byte[] screen = new byte[8192];
       System.arraycopy (buffer, 8192, screen, 0, 8192);
-      image = new HiResImage (screen);
+      image = new OriginalHiResImage ("screen", screen, 0x2000);
     }
     return image;
   }

@@ -124,27 +124,27 @@ public class MazeCell
       drawChar (g, x, y, HexFormatter.format1 (unknown), Color.GRAY);
   }
 
-  private void drawWest (Graphics2D g, int x, int y)
+  static void drawWest (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 1, y + 1, x + 1, y + cellSize.height - 1);
   }
 
-  private void drawEast (Graphics2D g, int x, int y)
+  static void drawEast (Graphics2D g, int x, int y)
   {
     g.drawLine (x + cellSize.width - 1, y + 1, x + cellSize.width - 1, y + cellSize.height - 1);
   }
 
-  private void drawNorth (Graphics2D g, int x, int y)
+  static void drawNorth (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 1, y + 1, x + cellSize.width - 1, y + 1);
   }
 
-  private void drawSouth (Graphics2D g, int x, int y)
+  static void drawSouth (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 1, y + cellSize.height - 1, x + cellSize.width - 1, y + cellSize.height - 1);
   }
 
-  private void drawStairsUp (Graphics2D g, int x, int y)
+  static void drawStairsUp (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 6, y + 18, x + 6, y + 14);
     g.drawLine (x + 6, y + 14, x + 10, y + 14);
@@ -154,7 +154,7 @@ public class MazeCell
     g.drawLine (x + 14, y + 6, x + 18, y + 6);
   }
 
-  private void drawStairsDown (Graphics2D g, int x, int y)
+  static void drawStairsDown (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 4, y + 7, x + 8, y + 7);
     g.drawLine (x + 8, y + 7, x + 8, y + 11);
@@ -164,20 +164,20 @@ public class MazeCell
     g.drawLine (x + 16, y + 15, x + 16, y + 19);
   }
 
-  private void drawPit (Graphics2D g, int x, int y)
+  static void drawPit (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 5, y + 14, x + 5, y + 19);
     g.drawLine (x + 5, y + 19, x + 17, y + 19);
     g.drawLine (x + 17, y + 14, x + 17, y + 19);
   }
 
-  private void drawChute (Graphics2D g, int x, int y)
+  static void drawChute (Graphics2D g, int x, int y)
   {
     g.drawLine (x + 6, y + 6, x + 10, y + 6);
     g.drawLine (x + 10, y + 6, x + 18, y + 18);
   }
 
-  private void drawElevator (Graphics2D g, int x, int y, int rows)
+  static void drawElevator (Graphics2D g, int x, int y, int rows)
   {
     for (int i = 0; i < rows; i++)
     {
@@ -186,35 +186,35 @@ public class MazeCell
     }
   }
 
-  private void drawMonsterLair (Graphics2D g, int x, int y)
+  static void drawMonsterLair (Graphics2D g, int x, int y)
   {
     g.setColor (Color.YELLOW);
     g.fillOval (x + 4, y + 4, 2, 2);
     g.setColor (Color.WHITE);
   }
 
-  private void drawTeleport (Graphics2D g, int x, int y)
+  static void drawTeleport (Graphics2D g, int x, int y)
   {
     g.setColor (Color.GREEN);
     g.fillOval (x + 8, y + 8, 8, 8);
     g.setColor (Color.WHITE);
   }
 
-  private void drawSpellsBlocked (Graphics2D g, int x, int y)
+  static void drawSpellsBlocked (Graphics2D g, int x, int y)
   {
     g.setColor (Color.YELLOW);
     g.fillOval (x + 8, y + 8, 8, 8);
     g.setColor (Color.WHITE);
   }
 
-  private void drawMonster (Graphics2D g, int x, int y)
+  static void drawMonster (Graphics2D g, int x, int y)
   {
     g.setColor (Color.RED);
     g.fillOval (x + 8, y + 8, 8, 8);
     g.setColor (Color.WHITE);
   }
 
-  private void drawDarkness (Graphics2D g, int x, int y)
+  static void drawDarkness (Graphics2D g, int x, int y)
   {
     g.setColor (Color.gray);
     for (int h = 0; h < 15; h += 7)
@@ -223,14 +223,14 @@ public class MazeCell
     g.setColor (Color.white);
   }
 
-  private void drawRock (Graphics2D g, int x, int y)
+  static void drawRock (Graphics2D g, int x, int y)
   {
     for (int h = 0; h < 15; h += 7)
       for (int offset = 0; offset < 15; offset += 7)
         g.drawOval (x + offset + 4, y + h + 4, 1, 1);
   }
 
-  private void drawChar (Graphics2D g, int x, int y, String c, Color colour)
+  static void drawChar (Graphics2D g, int x, int y, String c, Color colour)
   {
     g.setColor (colour);
     g.fillRect (x + 7, y + 6, 11, 11);
@@ -238,7 +238,7 @@ public class MazeCell
     g.drawString (c, x + 8, y + 16);
   }
 
-  private void drawHotDogStand (Graphics2D g, int x, int y)
+  static void drawHotDogStand (Graphics2D g, int x, int y)
   {
     g.drawRect (x + 5, y + 11, 12, 6);
     g.drawOval (x + 6, y + 18, 3, 3);
