@@ -145,7 +145,7 @@ public class MazePane extends JPanel
     int offsetY = 16;
     int lineHeight = 22;
 
-    int lang = 0;
+    int lang = 1;
     int n = 0;
 
     MazeCell.drawTeleport (g, x, y);
