@@ -5,4 +5,5 @@ java -classpath /path/to/WizardryBrowser.jar:/path/to/DiskBrowser.jar com.bytezo
 ### Windows Execution
 java -classpath /path/to/WizardryBrowser.jar;/path/to/DiskBrowser.jar com.bytezone.wizardry.ScenarioBrowser
 ### Screens
+#### Maze
 ![Maze](resources/maze.png?raw=true "Maze")

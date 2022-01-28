@@ -18,6 +18,15 @@ import javax.swing.ToolTipManager;
 
 public class MazePane extends JPanel
 {
+  private static String[][] text = {
+      { "Teleport", "Spells fizzle out here", "An encounter", "Pit", "Stairs going up",
+          "Stairs going down", "Rock", "Darkness", "Message", "Elevator", "Chute", "Hotdog Stand",
+          "Spinner", "Monsters' Lair", "Wall", "Door", "Secret door" },
+      { "Téléportation", "Anti-sorts", "Rencontre", "Fosse", "Escalier vers le haut",
+          "Escalier vers le bas", "Roc", "Noirceur", "Message", "Ascenseur", "Chute",
+          "Stand de hot-dog", "Plaque tournante", "Antre des monstres", "Mur", "Porte",
+          "Porte secrète" } };
+
   MazeDataModel model;
   BufferedImage image;
   int mazeOffsetX = 0;
@@ -136,76 +145,79 @@ public class MazePane extends JPanel
     int offsetY = 16;
     int lineHeight = 22;
 
+    int lang = 0;
+    int n = 0;
+
     MazeCell.drawTeleport (g, x, y);
-    g.drawString ("Teleport", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawSpellsBlocked (g, x, y);
-    g.drawString ("Spells fizzle out here", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawMonster (g, x, y);
-    g.drawString ("An encounter", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawPit (g, x, y);
-    g.drawString ("Pit", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawStairsUp (g, x, y);
-    g.drawString ("Stairs going up", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawStairsDown (g, x, y);
-    g.drawString ("Stairs going down", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawRock (g, x, y);
-    g.drawString ("Rock", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawDarkness (g, x, y);
-    g.drawString ("Darkness", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawChar (g, x, y, "M", Color.RED);
-    g.drawString ("Message", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawElevator (g, x, y, 3);
-    g.drawString ("Elevator", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawChute (g, x, y);
-    g.drawString ("Chute", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawHotDogStand (g, x, y);
-    g.drawString ("Hotdog Stand", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     g.drawString ("S", x + 8, y + 16);
-    g.drawString ("Spinner", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawMonsterLair (g, x, y);
-    g.drawString ("Monsters' Lair", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     MazeCell.drawWest (g, x, y);
-    g.drawString ("Wall", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     g.setColor (Color.RED);
     MazeCell.drawWest (g, x, y);
     g.setColor (Color.WHITE);
-    g.drawString ("Door", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
 
     g.setColor (Color.GREEN);
     MazeCell.drawWest (g, x, y);
     g.setColor (Color.WHITE);
-    g.drawString ("Secret door", offsetX, y + offsetY);
+    g.drawString (text[lang][n++], offsetX, y + offsetY);
     y += lineHeight;
   }
 }
