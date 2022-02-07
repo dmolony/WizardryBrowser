@@ -1,16 +1,21 @@
 package com.bytezone.wizardry;
 
-import java.awt.*;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.util.Iterator;
-import java.awt.event.MouseEvent;
-import java.awt.geom.*;
 
 import javax.swing.JPanel;
-import static com.bytezone.wizardry.Spell.SpellType;
+
+import com.bytezone.wizardry.Spell.SpellType;
 
 public class CharacterPanel extends JPanel
 {
@@ -26,17 +31,17 @@ public class CharacterPanel extends JPanel
   private Rectangle graphArea = new Rectangle (317, 60, 380, 260);
   int spellOffsetX = 28;
   int spellLineHeight = 14;
-  
-//private static String[] columnToolTips = {
-//    "STRENGTH - affects combat ability",
-//    "IQ - determines the ability to cast mage spells",
-//    "PIETY - determines the ability to cast priest spells",
-//    "VITALITY - modifies amount of damage that can be sustained " + 
-//                    "before death",
-//    "AGILITY - determines the order in which attacks occur",
-//    "LUCK - helps in many mysterious ways" };
 
-  public CharacterPanel(Character character)
+  //private static String[] columnToolTips = {
+  //    "STRENGTH - affects combat ability",
+  //    "IQ - determines the ability to cast mage spells",
+  //    "PIETY - determines the ability to cast priest spells",
+  //    "VITALITY - modifies amount of damage that can be sustained " + 
+  //                    "before death",
+  //    "AGILITY - determines the order in which attacks occur",
+  //    "LUCK - helps in many mysterious ways" };
+
+  public CharacterPanel (Character character)
   {
     this.character = character;
     headerFont = new Font ("Verdana", Font.BOLD, 24);
@@ -48,6 +53,7 @@ public class CharacterPanel extends JPanel
     setToolTipText (""); // dummy call to turn on tooltip mechanism
   }
 
+  @Override
   public String getToolTipText (MouseEvent e)
   {
     Point p = new Point (e.getX (), e.getY ());
@@ -105,6 +111,7 @@ public class CharacterPanel extends JPanel
     return null;
   }
 
+  @Override
   public void paintComponent (Graphics g)
   {
     super.paintComponent (g);
@@ -112,16 +119,16 @@ public class CharacterPanel extends JPanel
     Statistics stats = character.getStatistics ();
     g.setFont (headerFont);
     String name = character.getName ();
-    if (character.isWinner ())
-      name += ">";
+    //    if (character.isWinner ())
+    //      name += ">";
+    name += character.getAwardString ();
     if (character.isOut ())
       name += " * out *";
     if (stats.statusValue != 0)
       name += " - " + stats.status;
     g.drawString (name, 20, 35);
     String type = character.getType ();
-    g.drawString (type,
-            getWidth () - headerFontMetrics.stringWidth (type) - 20, 35);
+    g.drawString (type, getWidth () - headerFontMetrics.stringWidth (type) - 20, 35);
 
     int lineHeight = 17;
     int x1 = 40;
@@ -141,8 +148,7 @@ public class CharacterPanel extends JPanel
     if (stats.experience >= stats.nextLevel)
       g.setColor (Color.RED);
     g.drawString ("Experience", x1, y);
-    g.drawString (nf.format (stats.experience) + " / "
-            + nf.format (stats.nextLevel), x2, y);
+    g.drawString (nf.format (stats.experience) + " / " + nf.format (stats.nextLevel), x2, y);
     g.setColor (Color.BLACK);
     y += lineHeight;
 
@@ -192,8 +198,7 @@ public class CharacterPanel extends JPanel
       if (value > 0)
       {
         String valueText = nf.format (value);
-        g.drawString (valueText, x3 - itemFontMetrics.stringWidth (valueText),
-                y);
+        g.drawString (valueText, x3 - itemFontMetrics.stringWidth (valueText), y);
       }
       int ac = b.item.getArmourClass ();
       if (ac > 0)
@@ -211,8 +216,8 @@ public class CharacterPanel extends JPanel
 
     int colWidth = spellArea.width / 7;
 
-    RoundRectangle2D.Float rect = new RoundRectangle2D.Float (spellArea.x,
-            spellArea.y, spellArea.width, spellArea.height, 25.0f, 25.0f);
+    RoundRectangle2D.Float rect = new RoundRectangle2D.Float (spellArea.x, spellArea.y,
+        spellArea.width, spellArea.height, 25.0f, 25.0f);
     g.setStroke (new BasicStroke (4));
     g.setPaint (Color.gray);
     g.draw (rect);
@@ -264,8 +269,8 @@ public class CharacterPanel extends JPanel
 
     Attributes attr = character.getAttributes ();
 
-    RoundRectangle2D.Float rect = new RoundRectangle2D.Float (graphArea.x,
-            graphArea.y, graphArea.width, graphArea.height, 25.0f, 25.0f);
+    RoundRectangle2D.Float rect = new RoundRectangle2D.Float (graphArea.x, graphArea.y,
+        graphArea.width, graphArea.height, 25.0f, 25.0f);
     g.setPaint (Color.black);
     g.fill (rect);
     g.setStroke (new BasicStroke (1));
@@ -274,19 +279,17 @@ public class CharacterPanel extends JPanel
     for (int i = 0; i < attr.array.length; i++)
     {
       int h = attr.array[i] * unitSize;
-      g.fillRect (graphArea.x + inset + i * (gap + barWidth) + gap, graphArea.y
-              + graphArea.height - inset - h, barWidth, h);
+      g.fillRect (graphArea.x + inset + i * (gap + barWidth) + gap,
+          graphArea.y + graphArea.height - inset - h, barWidth, h);
     }
 
     g.setColor (Color.GREEN);
 
     g.drawLine (graphArea.x + inset, graphArea.y + graphArea.height - inset,
-            graphArea.x + inset + 6 * (barWidth + gap) + gap, graphArea.y
-                    + graphArea.height - inset);
+        graphArea.x + inset + 6 * (barWidth + gap) + gap, graphArea.y + graphArea.height - inset);
 
-    g.drawLine (graphArea.x + inset, graphArea.y + graphArea.height - inset,
-            graphArea.x + inset, graphArea.y + graphArea.height - inset - 18
-                    * unitSize - gap);
+    g.drawLine (graphArea.x + inset, graphArea.y + graphArea.height - inset, graphArea.x + inset,
+        graphArea.y + graphArea.height - inset - 18 * unitSize - gap);
 
     for (int i = 0; i < categories.length; i++)
     {

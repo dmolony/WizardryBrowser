@@ -12,6 +12,8 @@ import com.bytezone.wizardry.ComponentFactory.ExperienceLevel;
 
 public class Character
 {
+  private static char[] awardsText = ">!$#&*<?BCPKODG@".toCharArray ();
+
   private String name;
   private byte[] data;
   private Attributes attributes;
@@ -158,9 +160,20 @@ public class Character
     return stats.nextLevel;
   }
 
-  public boolean isWinner ()
+  public String getAwardString ()
   {
-    return (data[206] == 1);
+    StringBuilder text = new StringBuilder (" ");
+
+    int awards = Utility.getShort (data, 206);
+
+    for (int i = 0; i < 16; i++)
+    {
+      if ((awards & 0x01) != 0)
+        text.append (awardsText[i]);
+      awards >>>= 1;
+    }
+
+    return text.toString ();
   }
 
   public boolean isOut ()

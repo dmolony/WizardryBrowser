@@ -42,17 +42,16 @@ public class MazePane extends JPanel
     this.model = model;
     createImage ();
     setBackground (Color.BLACK);
-    setToolTipText (""); // turn on tooltips
+    setToolTipText ("");                        // turn on tooltips
     ToolTipManager ttm = ToolTipManager.sharedInstance ();
-    ttm.setDismissDelay (8000); // 8 seconds
+    ttm.setDismissDelay (8000);                 // 8 seconds
 
     addKeyListener (new KeyAdapter ()
     {
       @Override
       public void keyPressed (KeyEvent e)
       {
-        int c = e.getKeyCode ();
-        switch (c)
+        switch (e.getKeyCode ())
         {
           case KeyEvent.VK_LEFT:
             if (--mazeOffsetX < 0)
@@ -60,18 +59,21 @@ public class MazePane extends JPanel
             image = null;
             repaint ();
             break;
+
           case KeyEvent.VK_RIGHT:
             if (++mazeOffsetX >= 20)
               mazeOffsetX = 0;
             image = null;
             repaint ();
             break;
+
           case KeyEvent.VK_DOWN:
             if (--mazeOffsetY < 0)
               mazeOffsetY = 19;
             image = null;
             repaint ();
             break;
+
           case KeyEvent.VK_UP:
             if (++mazeOffsetY >= 20)
               mazeOffsetY = 0;
@@ -145,7 +147,7 @@ public class MazePane extends JPanel
     int offsetY = 16;
     int lineHeight = 22;
 
-    int lang = 1;
+    int lang = 0;
     int n = 0;
 
     MazeCell.drawTeleport (g, x, y);

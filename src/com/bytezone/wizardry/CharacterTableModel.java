@@ -2,20 +2,22 @@ package com.bytezone.wizardry;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+
 import javax.swing.table.AbstractTableModel;
 
 public class CharacterTableModel extends AbstractTableModel
 {
   private ArrayList<Character> characters;
   private static NumberFormat nf = NumberFormat.getInstance ();
-  private static String[] columnNames = { "Name", "Alignment", "Race", "Class",
-          "Lvl", "AC", "Hits", "Gold", "Experience", "Next level", "Attr" };
+  private static String[] columnNames = { "Name", "Alignment", "Race", "Class", "Lvl", "AC", "Hits",
+      "Gold", "Experience", "Next level", "Attr" };
 
-  public CharacterTableModel(ArrayList<Character> characters)
+  public CharacterTableModel (ArrayList<Character> characters)
   {
     this.characters = characters;
   }
 
+  @Override
   public int getRowCount ()
   {
     if (characters == null)
@@ -23,14 +25,16 @@ public class CharacterTableModel extends AbstractTableModel
     return characters.size ();
   }
 
+  @Override
   public int getColumnCount ()
   {
     return columnNames.length;
   }
 
+  @Override
   public Object getValueAt (int rowIndex, int columnIndex)
   {
-    Character character = (Character) characters.get (rowIndex);
+    Character character = characters.get (rowIndex);
     Statistics stats = null;
     Attributes attributes = null;
 
@@ -51,27 +55,28 @@ public class CharacterTableModel extends AbstractTableModel
       case 3:
         return character.getType ();
       case 4:
-        return new Integer (stats.level);
+        return Integer.valueOf (stats.level);
       case 5:
-        return new Integer (stats.armourClass);
+        return Integer.valueOf (stats.armourClass);
       case 6:
-        return new Integer (stats.hitsMax);
+        return Integer.valueOf (stats.hitsMax);
       case 7:
-        return new Integer (stats.gold);
+        return Integer.valueOf (stats.gold);
       case 8:
-        return new Long (stats.experience);
+        return Long.valueOf (stats.experience);
       case 9:
-        return new Long (stats.nextLevel - stats.experience);
+        return Long.valueOf (stats.nextLevel - stats.experience);
       case 10:
         int totalAttributes = 0;
         for (int value : attributes.array)
           totalAttributes += value;
-        return new Integer (totalAttributes);
+        return Integer.valueOf (totalAttributes);
       default:
         return "???";
     }
   }
 
+  @Override
   public String getColumnName (int columnIndex)
   {
     return columnNames[columnIndex];
