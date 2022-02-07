@@ -118,15 +118,15 @@ public class CharacterPanel extends JPanel
 
     Statistics stats = character.getStatistics ();
     g.setFont (headerFont);
-    String name = character.getName ();
-    //    if (character.isWinner ())
-    //      name += ">";
-    name += character.getAwardString ();
+
+    StringBuilder name = new StringBuilder (character.getName ());
+    name.append (character.getAwardString ());
     if (character.isOut ())
-      name += " * out *";
+      name.append (" * out *");
     if (stats.statusValue != 0)
-      name += " - " + stats.status;
-    g.drawString (name, 20, 35);
+      name.append (" - " + stats.status);
+    g.drawString (name.toString (), 20, 35);
+
     String type = character.getType ();
     g.drawString (type, getWidth () - headerFontMetrics.stringWidth (type) - 20, 35);
 
